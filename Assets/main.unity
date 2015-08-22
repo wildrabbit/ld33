@@ -275,7 +275,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11466052, guid: 1ed07951209c4c143b516bf14ed6723e, type: 2}
       propertyPath: m_maxSpeed
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6139532, guid: 1ed07951209c4c143b516bf14ed6723e, type: 2}
       propertyPath: m_Offset.x
@@ -292,6 +292,10 @@ Prefab:
     - target: {fileID: 6139532, guid: 1ed07951209c4c143b516bf14ed6723e, type: 2}
       propertyPath: m_Size.y
       value: .961341143
+      objectReference: {fileID: 0}
+    - target: {fileID: 11466052, guid: 1ed07951209c4c143b516bf14ed6723e, type: 2}
+      propertyPath: m_impulse
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1ed07951209c4c143b516bf14ed6723e, type: 2}
@@ -2069,7 +2073,7 @@ Rigidbody2D:
   m_IsKinematic: 0
   m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!4 &1322154820 stripped
 Transform:

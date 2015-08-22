@@ -22,6 +22,9 @@ public class PlayerControl : MonoBehaviour
     private const float DEADZONE_RADIUS = 0.1f;
     private const float DEADZONE_TRIGGER = -0.3f;
 
+    private const int COLLISION_TYPE_HORIZONTAL = 0;
+    private const int COLLISION_TYPE_VERTICAL = 1;
+
     public float m_maxSpeed = 1.0f;
     public float m_aimSpeed = 1.0f;
     public float m_range = 2.0f;
@@ -59,6 +62,7 @@ public class PlayerControl : MonoBehaviour
     private Vector2 m_currentAiming;
     private Vector2 m_aimingTarget;
 
+
 #region unity_methods
     void Awake()
     {
@@ -88,7 +92,6 @@ public class PlayerControl : MonoBehaviour
         if (Game.paused) return;
 
         FetchInput();
-
         UpdateMove();
         if (m_nextMove != MovementState.None && m_nextMove != m_moveState)
         {
@@ -115,12 +118,9 @@ public class PlayerControl : MonoBehaviour
 
    }
 
-    void LateUpdate()
+    void FixedUpdate()
     {
-        if (m_velocityTarget != Vector2.zero)
-        {
-            transform.Translate(m_velocityTarget * Time.deltaTime);
-        }
+        m_body.velocity = m_velocityTarget;
 
         if (m_aimingTarget != m_currentAiming)
         {
@@ -208,10 +208,10 @@ public class PlayerControl : MonoBehaviour
             m_aimingInput = mousePos - (Vector2)transform.position;
             m_aimingInput.Normalize();
 
-            
             shootPressed = Input.GetButton("Shoot");
             actionPressed = Input.GetButton("Action");
         }
+        
 
         m_shootWasPressed = m_shootPressed;
         m_shootPressed = shootPressed;
