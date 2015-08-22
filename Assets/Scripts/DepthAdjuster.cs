@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class DepthAdjuster : MonoBehaviour {
 
@@ -13,6 +13,6 @@ public class DepthAdjuster : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
     {
-        m_renderer.sortingOrder = -(int)transform.position.y;
+        m_renderer.sortingOrder = -(int)(transform.position.y * 10);
 	}
 }

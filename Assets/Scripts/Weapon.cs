@@ -20,7 +20,6 @@ public class Weapon : MonoBehaviour
     {
         m_renderer.sortingOrder = m_parentRenderer.sortingOrder + 1;
         float angle = m_parent.Orientation;
-        Debug.LogFormat("Angle: {0}", angle);
         Vector2 localScale = transform.localScale;
         float absAngle = Mathf.Abs(angle);
         if (absAngle >= 90.0f && absAngle <= 180.0f)
@@ -30,7 +29,6 @@ public class Weapon : MonoBehaviour
         }
         else
         {
-            Debug.Log("dafuq");
             localScale.x = Mathf.Abs(localScale.x);
         }
         transform.localScale = localScale;
