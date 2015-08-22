@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 025051b4cc76c2d40a09345f2f091cd6
-timeCreated: 1440259214
+timeCreated: 1440280322
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -76,7 +76,7 @@ TextureImporter:
         y: 138
         width: 63
         height: 64
-      alignment: 9
+      alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: block_64x64
@@ -132,12 +132,12 @@ TextureImporter:
     - name: block_custom
       rect:
         serializedVersion: 2
-        x: 256
+        x: 255
         y: 2
         width: 382
         height: 65
-      alignment: 7
-      pivot: {x: .5, y: 0}
+      alignment: 0
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: bullet
       rect:

@@ -11,12 +11,12 @@ GameObject:
   - 212: {fileID: 21245598}
   - 61: {fileID: 6187836}
   - 114: {fileID: 11407244}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: house_tall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &433938
 Transform:
@@ -40,7 +40,7 @@ BoxCollider2D:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_Offset: {x: 0, y: .529999971}
+  m_Offset: {x: 0, y: .49000001}
   serializedVersion: 2
   m_Size: {x: 2, y: 1.01896}
 --- !u!114 &11407244
