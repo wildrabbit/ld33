@@ -1,0 +1,17 @@
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\Assembly-CSharp.dll
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\Assembly-CSharp.pdb
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEditor.dll
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEditor.iOS.Extensions.Xcode.dll
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEngine.Analytics.dll
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEngine.dll
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEngine.Networking.dll
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEngine.UI.dll
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEngine.xml
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEditor.xml
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEngine.UI.xml
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEngine.Networking.xml
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEngine.Analytics.xml
+D:\projects\SleepOfReason\Temp\UnityVS_bin\Debug\UnityEditor.iOS.Extensions.Xcode.xml
+D:\projects\SleepOfReason\obj\Debug\UnityVS.SleepOfReason.CSharp.csprojResolveAssemblyReference.cache
+D:\projects\SleepOfReason\obj\Debug\Assembly-CSharp.dll
+D:\projects\SleepOfReason\obj\Debug\Assembly-CSharp.pdb

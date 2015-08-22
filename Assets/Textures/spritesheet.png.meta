@@ -1,0 +1,165 @@
+fileFormatVersion: 2
+guid: 025051b4cc76c2d40a09345f2f091cd6
+timeCreated: 1440255398
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: character
+    21300002: small_fountain
+    21300004: block_64x64
+    21300006: block_128x96
+    21300008: block_128x128
+    21300010: large_fountain
+    21300012: block_256x32
+    21300014: block_custom
+    21300016: bullet
+    21300018: weapon
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 8
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -3
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: 0
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 64
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: character
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 138
+        width: 48
+        height: 64
+      alignment: 7
+      pivot: {x: .5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: small_fountain
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 138
+        width: 63
+        height: 64
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: block_64x64
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 138
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: block_128x96
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 106
+        width: 128
+        height: 96
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: block_128x128
+      rect:
+        serializedVersion: 2
+        x: 313
+        y: 74
+        width: 128
+        height: 128
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: large_fountain
+      rect:
+        serializedVersion: 2
+        x: 443
+        y: 69
+        width: 151
+        height: 133
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: block_256x32
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 28
+        width: 251
+        height: 39
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: block_custom
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 2
+        width: 382
+        height: 65
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: bullet
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 102
+        width: 24
+        height: 10
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: weapon
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 78
+        width: 64
+        height: 16
+      alignment: 9
+      pivot: {x: .175312623, y: .440965652}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
