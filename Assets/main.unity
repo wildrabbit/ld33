@@ -246,6 +246,10 @@ Prefab:
       propertyPath: m_Color.b
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 11481180, guid: 1ed07951209c4c143b516bf14ed6723e, type: 2}
+      propertyPath: m_piercing
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1ed07951209c4c143b516bf14ed6723e, type: 2}
   m_IsPrefabParent: 0
@@ -304,6 +308,10 @@ Prefab:
     - target: {fileID: 11427864, guid: f03255b4e9a34e847b728103fd1be84c, type: 2}
       propertyPath: m_defaultSpeed
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 173104, guid: f03255b4e9a34e847b728103fd1be84c, type: 2}
+      propertyPath: m_Name
+      value: SpawnA
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f03255b4e9a34e847b728103fd1be84c, type: 2}
@@ -437,7 +445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_camTransform: {fileID: 0}
   m_shakeDuration: 0
-  m_shakeAmplitude: .0500000007
+  m_shakeAmplitude: .0299999993
   m_decreaseFactor: .800000012
 --- !u!114 &291615680
 MonoBehaviour:
@@ -1004,7 +1012,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 173104, guid: f03255b4e9a34e847b728103fd1be84c, type: 2}
       propertyPath: m_Name
-      value: enemySpawner (1)
+      value: SpawnB
       objectReference: {fileID: 0}
     - target: {fileID: 173104, guid: f03255b4e9a34e847b728103fd1be84c, type: 2}
       propertyPath: m_IsActive

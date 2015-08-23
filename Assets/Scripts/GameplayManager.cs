@@ -117,6 +117,11 @@ public class GameplayManager : MonoBehaviour
         paused = true;
         m_gameOver = condition;
         Debug.LogFormat("GAME OVER!! {0}", m_gameOver);
+
+        for (int i = 0; i < m_allEntities.Count; ++i)
+        {
+            m_allEntities[i].OnGameOver(m_gameOver);
+        }
     }
 
     public void OnPlayerAction()

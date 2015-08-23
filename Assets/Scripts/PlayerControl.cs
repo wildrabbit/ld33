@@ -136,14 +136,23 @@ public class PlayerControl : Entity
         return m_state == PlayerState.Hit || m_state == PlayerState.Death;
     }
 
-    override protected void HitReaction()
+    override protected bool HitReaction()
     {
-        m_state = PlayerState.Hit;
-        m_oldState = m_state;
+        if (m_state == PlayerState.Hit)
+        {
+            Debug.LogFormat("Already hit!!");
+            return false;
+        }
+        else
+        {
+            m_state = PlayerState.Hit;
+            m_oldState = m_state;
 
-        Color c = m_renderer.color;
-        c.a = 0.5f;
-        m_renderer.color = c;
+            Color c = m_renderer.color;
+            c.a = 0.5f;
+            m_renderer.color = c;
+            return true;
+        }
     }
 
     override public bool CanShootEntity(Entity e)

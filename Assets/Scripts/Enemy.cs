@@ -33,11 +33,19 @@ public class Enemy : Entity
 {
     private float m_reactionTime;
     private float m_reactionDuration;
-    private const float HOSTILE_ON_SIGHT_DURATION = 15.0f;
-    private const float HOSTILE_ON_HIT_DURATION = 25.0f;
+    public float m_hostileOnSightDuration = 4.0f;
+    public float m_hostileOnHitDuration = 8.0f;
+
+    public Sprite m_neutralSprite;
+    public Sprite m_hostileSprite;
 
     public Color m_neutralColour;
     public Color m_hostileColour;
+
+    public bool IsHostile
+    {
+        get { return m_currentReaction == EnemyReaction.Hostile; }
+    }
 
     private EnemyPersonality m_personality; // Immutable!
     
@@ -59,7 +67,9 @@ public class Enemy : Entity
         m_currentReaction = reaction;
         Color newC = m_currentReaction == EnemyReaction.Neutral ? m_neutralColour : m_hostileColour;
         newC.a = m_renderer.color.a;
-        m_renderer.color = newC;        
+        m_renderer.color = newC;
+
+        m_renderer.sprite = m_currentReaction == EnemyReaction.Neutral ? m_neutralSprite : m_hostileSprite;
     }
 
     override protected void Start()
@@ -74,7 +84,10 @@ public class Enemy : Entity
         GameplayManager.Instance.AddEnemy(this);
         ChangeReaction(EnemyReaction.Neutral);
         
-        m_state = EnemyState.Wandering;        
+        m_state = EnemyState.Wandering;
+        ResetWanderTarget();
+
+        m_reactionDuration = m_reactionTime = 0.0f;
     }
 
     public void SetPersonality (EnemyPersonality personality)
@@ -241,19 +254,20 @@ public class Enemy : Entity
             m_reactionTime = Time.time;
         }
 
-        m_reactionDuration = HOSTILE_ON_HIT_DURATION;
+        m_reactionDuration = m_hostileOnHitDuration;
         Debug.LogFormat("{0} goes hostile upon being hit", name);
         GameplayManager.Instance.OnEnemyWasHit(this);
         
     }
 
-    protected override void HitReaction()
+    protected override bool HitReaction()
     {
         m_state = EnemyState.Hit;
 
         Color c = m_renderer.color;
         c.a = 0.5f;
         m_renderer.color = c;
+        return true;
     }
 
     public void OnSawEnemyHit(Enemy e)
@@ -274,7 +288,7 @@ public class Enemy : Entity
             ResetWanderTarget();
             m_reactionTime = Time.time;
         }       
-        m_reactionDuration = HOSTILE_ON_SIGHT_DURATION;
+        m_reactionDuration = m_hostileOnSightDuration;
         Debug.LogFormat("{0} turned hostile after seeing another enemy hit", name, e.name);
     }
 
@@ -296,7 +310,7 @@ public class Enemy : Entity
             ResetWanderTarget();
             m_reactionTime = Time.time;
         }
-        m_reactionDuration = HOSTILE_ON_SIGHT_DURATION;
+        m_reactionDuration = m_hostileOnSightDuration;
         Debug.LogFormat("{0} turned hostile after seeing another enemy die", name, e.name);
     }
 
@@ -317,8 +331,8 @@ public class Enemy : Entity
 
     protected override void OnDied()
     {
-        GameplayManager.Instance.OnEnemyDied(this);
         GameplayManager.Instance.RemoveEnemy(this);
+        GameplayManager.Instance.OnEnemyDied(this);
     }
 
     protected override void SetDying()

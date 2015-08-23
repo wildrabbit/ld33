@@ -61,7 +61,13 @@ public class NPC : Entity
     {
         base.Initialize(maxHP, maxSpeed);
         m_state = NPCState.Wandering;
+        ResetWanderTarget();
         GameplayManager.Instance.AddNPC(this);
+    }
+
+    protected override void FixedUpdate()
+    {
+        base.FixedUpdate();
     }
 	
 	// Update is called once per frame
@@ -128,7 +134,7 @@ public class NPC : Entity
 
     public override bool CanBumpEntity(Entity e)
     {
-        return e is Enemy;
+        return e!= null && e is Enemy && ((Enemy)e).IsHostile;
     }
 
     override public bool CanShootEntity(Entity e)
@@ -166,13 +172,14 @@ public class NPC : Entity
         m_state = NPCState.Wandering;
     }
 
-    protected override void HitReaction()
+    protected override bool HitReaction()
     {
         m_state = NPCState.Hit;
         
         Color c = m_renderer.color;
         c.a = 0.5f;
         m_renderer.color = c;
+        return true;
     }
 
     protected override void SetDying()

@@ -124,7 +124,11 @@ public abstract class Entity : MonoBehaviour
 
         m_mainCollider.enabled = true;
         m_bodyCollider.enabled = true;
+    }
 
+    public void OnGameOver(GameOverType gameoverType)
+    {
+        m_body.velocity = Vector2.zero;
     }
 
     // Update is called once per frame
@@ -138,7 +142,7 @@ public abstract class Entity : MonoBehaviour
     {
         if (GameplayManager.Instance.paused) return;
 
-        if (IsDying() || m_body.isKinematic)
+        if (IsDying())
         {
             m_body.velocity = Vector2.zero;
         }
@@ -154,7 +158,6 @@ public abstract class Entity : MonoBehaviour
     virtual public void OnCollisionEnter2D(Collision2D collision)
     {
         bool bodyCollision = collision.collider.gameObject.layer == m_bodyCollider.gameObject.layer;
-        bool groundCollision = collision.collider.gameObject.layer == LayerMask.NameToLayer("Static");
         
         if (bodyCollision)
         {
@@ -164,22 +167,16 @@ public abstract class Entity : MonoBehaviour
                 OnBumped(e);
             }            
         }
-
-        if (!groundCollision)
-        {
-            m_body.isKinematic = true;
-        }
     }
     virtual public void OnCollisionExit2D(Collision2D collision)
     {
-        m_body.isKinematic = false;
     }
     #endregion
 
 
     abstract public bool IsDying();
     abstract protected void SetDying();
-    abstract protected void HitReaction();
+    abstract protected bool HitReaction();
     abstract protected void OnDied();
 
     public bool CanSee(Entity e)
@@ -269,7 +266,7 @@ public abstract class Entity : MonoBehaviour
         bool died = m_lifeData.UpdateHP(-damage);
         Debug.LogFormat("Entity {0} hit! Current Hp: {1}", name, m_lifeData.HP);
         
-        transform.Translate(direction * e.WeaponRecoil);
+        transform.Translate(direction * e.WeaponRecoil * 1.6f);
         if (died)
         {
             m_audioSource.PlayOneShot(m_deathSound);
@@ -278,8 +275,11 @@ public abstract class Entity : MonoBehaviour
         else
         {
             m_audioSource.PlayOneShot(m_hitSound);
-            HitReaction();
-            m_hitTime = Time.time;
+            if (HitReaction())
+            {
+                m_hitTime = Time.time;
+
+            }
         }
     }
 
@@ -310,6 +310,16 @@ public abstract class Entity : MonoBehaviour
 
         m_mainCollider.enabled = false;
         m_bodyCollider.enabled = false;
+
+        // Reset all timers!!
+        m_hitTime = 0.0f;
+        m_lastShoot = -1.0f;
+        m_lastWanderDecisionTime = -1.0f;
+        m_nextWanderDecisionTime = -1.0f;
+
+        m_wanderPosition = transform.position;
+        m_targetEntity = null;
+
         OnDied(); // Notify Gameplay manager!
         gameObject.SetActive(false);
     }

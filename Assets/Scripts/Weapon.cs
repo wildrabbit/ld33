@@ -105,9 +105,9 @@ public class Weapon : MonoBehaviour
             {
                 for (int i = 0; i < infos.Length; ++i)
                 {
-                    if (infos[i].collider != null)
+                    if (infos[i].collider != null && !m_parent.OwnsCollider(infos[i].collider))
                     {
-                        Entity collidedEntity = infos[i].collider.GetComponent<Entity>();
+                        Entity collidedEntity = infos[i].collider.GetComponentInParent<Entity>();
                         if (collidedEntity != null)
                         {
                             result.Add(collidedEntity);

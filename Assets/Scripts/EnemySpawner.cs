@@ -75,18 +75,18 @@ public class EnemySpawner : MonoBehaviour
             if (!m_enemyPool[i].gameObject.activeSelf)
             {
                 candidate = m_enemyPool[i];
-                m_spawnCount++;
                 break;
             }
         }
 
         if (candidate != null)
         {
-            candidate.name = string.Format("Enemy{0}", m_spawnCount - 1);
+            candidate.name = string.Format("Enemy_{1}_{0}", m_spawnCount, name);
             candidate.gameObject.SetActive(true);
             candidate.Initialize(m_defaultHP, m_defaultSpeed);
             candidate.SetPersonality(EnemyPersonality.Cautious);
             candidate.transform.position = transform.position;
+            m_spawnCount++;
 
             GameplayManager.Instance.AddEnemy(candidate);            
         }

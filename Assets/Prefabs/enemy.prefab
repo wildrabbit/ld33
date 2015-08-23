@@ -199,7 +199,7 @@ MonoBehaviour:
   m_maxWanderDecisionTime: 1.5
   m_maxSpeed: 4
   m_orientationSpeed: 1
-  m_sightRadius: 6
+  m_sightRadius: 4
   m_hitRecovery: .5
   m_shootCooldown: .400000006
   m_startHP: 10
@@ -209,6 +209,8 @@ MonoBehaviour:
   m_deathSound: {fileID: 8300000, guid: 017a60eadd75a044fb05bac4c279c464, type: 3}
   m_hitSound: {fileID: 8300000, guid: febd513de75e3394bb45a9d3fcef5c1a, type: 3}
   m_shootSound: {fileID: 0}
+  m_neutralSprite: {fileID: 21300002, guid: f2eb4ddff3d33954991a02d23d98d069, type: 3}
+  m_hostileSprite: {fileID: 21300000, guid: f2eb4ddff3d33954991a02d23d98d069, type: 3}
   m_neutralColour: {r: 1, g: .498039246, b: .498039246, a: 1}
   m_hostileColour: {r: .735294104, g: .0378460139, b: .0378460139, a: 1}
 --- !u!212 &21287284
@@ -321,6 +323,20 @@ Prefab:
       value: 
       objectReference: {fileID: 21300002, guid: f2eb4ddff3d33954991a02d23d98d069,
         type: 3}
+    - target: {fileID: 0}
+      propertyPath: m_neutralSprite
+      value: 
+      objectReference: {fileID: 21300002, guid: f2eb4ddff3d33954991a02d23d98d069,
+        type: 3}
+    - target: {fileID: 0}
+      propertyPath: m_hostileSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f2eb4ddff3d33954991a02d23d98d069,
+        type: 3}
+    - target: {fileID: 0}
+      propertyPath: m_sightRadius
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 197760}
