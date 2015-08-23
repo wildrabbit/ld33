@@ -28,6 +28,7 @@ public class GameplayManager : MonoBehaviour
     public static GameplayManager Instance;
 
     private PlayerControl m_player;
+    public PlayerControl Player { get { return m_player; } }
     private List<Enemy> m_activeEnemies;
     private List<NPC> m_activeNPCs;
 
@@ -134,4 +135,35 @@ public class GameplayManager : MonoBehaviour
         m_activeNPCs.Remove(n);
     }
 
+    public void OnEnemyHit (Enemy e)
+    {
+        for (int i = 0; i < m_activeEnemies.Count; ++i)
+        {
+            if (m_activeEnemies[i] != e && m_activeEnemies[i].CanSee(e))
+            {
+                m_activeEnemies[i].OnSawEnemyHit(e);
+            }
+        }
+    }
+
+    public List<GameObject> GetTargetsOnSight(Enemy e)
+    {
+        List<GameObject> targets = new List<GameObject>();
+        if (e.CanSee(m_player))
+        {
+            targets.Add(m_player.gameObject);
+        }
+
+        for (int i = 0; i < m_activeNPCs.Count; ++i )
+        {
+            if(e.CanSee(m_activeNPCs[i]))
+            {
+                targets.Add(m_activeNPCs[i].gameObject);
+            }
+        }
+
+        targets.Sort((x,y) => Vector2.Distance(x.transform.position,e.transform.position).CompareTo(Vector2.Distance(y.transform.position,e.transform.position)));
+
+        return targets;
+    }
 }

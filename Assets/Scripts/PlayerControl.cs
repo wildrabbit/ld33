@@ -368,6 +368,7 @@ public class PlayerControl : MonoBehaviour
 
         if (!willCauseDamage) { return; }
         bool dead = m_lifeData.UpdateHP(-1);
+        Debug.LogFormat("Player hit! Current Hp: {0}", m_lifeData.HP);
         if (dead)
         {
             StartCoroutine(DieInSeconds(1.0f));

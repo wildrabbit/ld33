@@ -51,7 +51,6 @@ public class EnemySpawner : MonoBehaviour
 
             m_nextSpawn = Random.Range(MIN_SPAWN_TIME, MAX_SPAWN_TIME);
             m_lastSpawn = Time.time;
-            m_spawnCount++;
         }
 	
 	}
@@ -76,12 +75,14 @@ public class EnemySpawner : MonoBehaviour
             if (!m_enemyPool[i].gameObject.activeSelf)
             {
                 candidate = m_enemyPool[i];
+                m_spawnCount++;
                 break;
             }
         }
 
         if (candidate != null)
         {
+            candidate.name = string.Format("Enemy{0}", m_spawnCount - 1);
             candidate.gameObject.SetActive(true);
             candidate.Initialize(EnemyPersonality.Cautious, m_defaultHP, m_defaultSpeed);
             GameplayManager.Instance.AddEnemy(candidate);            
