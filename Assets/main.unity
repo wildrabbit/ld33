@@ -348,6 +348,10 @@ Prefab:
       propertyPath: m_maxEnemies
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 11427864, guid: f03255b4e9a34e847b728103fd1be84c, type: 2}
+      propertyPath: m_defaultSpeed
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f03255b4e9a34e847b728103fd1be84c, type: 2}
   m_IsPrefabParent: 0
@@ -524,6 +528,7 @@ GameObject:
   - 92: {fileID: 291615676}
   - 124: {fileID: 291615675}
   - 81: {fileID: 291615674}
+  - 114: {fileID: 291615679}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -597,6 +602,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
+--- !u!114 &291615679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 291615673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26bf33d2509f2b14e8db15c775b9e2b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_camTransform: {fileID: 0}
+  m_shakeDuration: 0
+  m_shakeAmplitude: .0500000007
+  m_decreaseFactor: .800000012
 --- !u!1001 &363466552
 Prefab:
   m_ObjectHideFlags: 0
@@ -2228,8 +2248,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   paused: 0
-  killedCreatureCount: 0
-  killedNPCCount: 0
+  m_killedCreatureCount: 0
+  m_killedNPCCount: 0
+  m_spawnedNPCCount: 0
+  m_spawnedCreatures: 0
+  m_victoryTime: 150
 --- !u!1001 &1303828428
 Prefab:
   m_ObjectHideFlags: 0

@@ -4,6 +4,14 @@ using System.Collections;
 
 public class EnemySpawner : MonoBehaviour 
 {
+    public int m_maxSpawns = 50;
+    private int m_spawnCount;
+
+    public bool Depleted
+    {
+        get { return m_spawnCount == m_maxSpawns; }
+    }
+
     public Enemy m_enemyPrefab;
     public int m_maxEnemies = 10;
     private const float MIN_SPAWN_TIME = 1.5f;
@@ -21,6 +29,7 @@ public class EnemySpawner : MonoBehaviour
 	// Use this for initialization
 	void Start () 
     {
+        m_spawnCount = 0;
         m_lastSpawn = m_nextSpawn = Time.time;
         InitializePool();
 	}
@@ -32,12 +41,17 @@ public class EnemySpawner : MonoBehaviour
         {
             return;
         }
+        if (m_spawnCount == m_maxSpawns)
+        {
+            return;
+        }
         if (Time.time - m_lastSpawn >= m_nextSpawn)
         {
             Spawn();
 
             m_nextSpawn = Random.Range(MIN_SPAWN_TIME, MAX_SPAWN_TIME);
             m_lastSpawn = Time.time;
+            m_spawnCount++;
         }
 	
 	}

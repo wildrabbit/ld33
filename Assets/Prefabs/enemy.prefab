@@ -125,7 +125,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7017d590b179fb047bea9a473cedc5c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_maxSpeed: 2
+  m_recoil: .200000003
+  m_maxSpeed: 4
 --- !u!212 &21287284
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -173,6 +174,10 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: m_Constraints
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_maxSpeed
       value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []

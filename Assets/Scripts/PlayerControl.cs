@@ -26,6 +26,8 @@ public class PlayerControl : MonoBehaviour
     public float m_aimSpeed = 1.0f;
     public float m_range = 2.0f;
     public float m_errorChance = 0.1f;
+    public float m_recoil = 0.2f;
+    public float m_hitTime = 0.5f;
 
     public float m_shootCooldown = 0.4f;
     private float m_lastShoot;
@@ -72,10 +74,9 @@ public class PlayerControl : MonoBehaviour
     private bool m_actionPressed;
 
     // FSM vars
+    private float m_lastHit;
+    private MovementState m_oldState;
     private MovementState m_moveState;
-    private MovementState m_nextMove;
-    private ActionState m_actionState;
-    private ActionState m_nextAction;
 
     // Physics vars
     private Vector2 m_velocityTarget;
@@ -94,11 +95,10 @@ public class PlayerControl : MonoBehaviour
         m_audioSource = GetComponent<AudioSource>();
 
         m_moveState = MovementState.None;
-        m_nextMove = MovementState.None;
-        m_actionState = ActionState.None;
-        m_nextAction = ActionState.None;
+        m_oldState = MovementState.None;
 
         m_lifeData = new CharacterLife();
+        m_lastHit = 0.0f;
     }
 
 	// Use this for initialization
@@ -106,8 +106,6 @@ public class PlayerControl : MonoBehaviour
     {
         m_moveState = MovementState.Idle;
         EnterState();
-        m_actionState = ActionState.Idle;
-        EnterActionState();
 
         m_lifeData.Initialise(m_startHP);
         m_movementInput = m_velocityTarget = m_aimingInput = m_aimingTarget = m_currentAiming = Vector2.zero;
@@ -150,6 +148,11 @@ public class PlayerControl : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (m_moveState == MovementState.Death)
+        {
+            return;
+        }
+
         if (m_body.isKinematic)
         {
             m_body.velocity = Vector2.zero;                 
@@ -205,6 +208,31 @@ public class PlayerControl : MonoBehaviour
 
     private void UpdateMove()
     {
+        if (m_moveState == MovementState.Death)
+        {
+            return;
+        }
+
+        if (m_moveState == MovementState.Hit)
+        {
+            if (Time.time - m_lastHit >= m_hitTime)
+            {
+                Color c = m_renderer.color;
+                c.a = 1.0f;
+                m_renderer.color = c;
+                
+                if (m_oldState!= MovementState.None)
+                {
+                    m_moveState = m_oldState;
+                }
+                else
+                {
+                    m_moveState = MovementState.Idle;
+                }
+                m_oldState = MovementState.None;
+            }
+        }
+
         m_velocityTarget = Vector2.zero;
         if (m_movementInput != Vector2.zero)
         {
@@ -218,23 +246,7 @@ public class PlayerControl : MonoBehaviour
             m_lastShoot = -1.0f;
             if (m_shootPressed)
             {
-                RaycastHit2D info = Physics2D.Raycast(m_laser.position, m_currentAiming, m_effectiveRange, m_characterLayer);
-                if (info.collider != null)
-                {
-                    Enemy e = info.collider.GetComponentInParent<Enemy>();
-                    if (e != null)
-                    {
-                        e.OnHit(m_weapon);
-                    }
-
-                    NPC n = info.collider.GetComponentInParent<NPC>();
-                    if (n != null)
-                    {
-                        n.OnHit(m_weapon);
-                    }
-                }
-                m_audioSource.Play();
-                m_lastShoot = Time.time;
+                Shoot();
             }            
         }
 
@@ -246,14 +258,32 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    void ChangeMovementState (MovementState nextState)
+    void Shoot ()
     {
-        m_nextMove = nextState;
-    }
+        RaycastHit2D info = Physics2D.Raycast(m_laser.position, m_currentAiming, m_effectiveRange, m_characterLayer);
+        CameraShake cs = Camera.main.GetComponent<CameraShake>();
+        if (info.collider != null)
+        {
+            Enemy e = info.collider.GetComponentInParent<Enemy>();
+            if (e != null)
+            {
+                e.OnHit(m_weapon, m_currentAiming);
+            }
 
-    void ChangeActionState (ActionState actionState)
-    {
-        m_nextAction = actionState;
+            NPC n = info.collider.GetComponentInParent<NPC>();
+            if (n != null)
+            {
+                n.OnHit(m_weapon, m_currentAiming);
+            }
+        }
+        transform.Translate(m_currentAiming * -m_recoil);
+        if (cs != null)
+        {
+            cs.StartShakeWithDuration(0.1f);
+        }
+        m_audioSource.Play();
+        m_lastShoot = Time.time;
+
     }
 #endregion
     //---------------
@@ -317,16 +347,74 @@ public class PlayerControl : MonoBehaviour
 
     public void OnCollisionEnter2D(Collision2D collision)
     {
+        if (m_moveState == MovementState.Hit || m_moveState == MovementState.Death)
+        {
+            return;
+        }
+
+        bool willCauseDamage = false;
         Enemy e = collision.collider.GetComponent<Enemy>();
         if (e != null)
         {
-            bool dead = m_lifeData.UpdateHP(-1);
-            if (dead)
-            {
-                
-            }
-            m_body.isKinematic = true;
+            willCauseDamage = e.CanHitCharacter(this);
         }
+
+        NPC n = collision.collider.GetComponent<NPC>();
+        if (n != null)
+        {
+            willCauseDamage = n.CanHitCharacter(this);
+        }
+
+
+        if (!willCauseDamage) { return; }
+        bool dead = m_lifeData.UpdateHP(-1);
+        if (dead)
+        {
+            StartCoroutine(DieInSeconds(1.0f));
+        }
+        else
+        {
+            m_moveState = MovementState.Hit;
+            m_oldState = m_moveState;
+            m_lastHit = Time.time;
+            Color c = m_renderer.color;
+            c.a = 0.5f;
+            m_renderer.color = c;
+        }
+        m_body.isKinematic = true;
+    }
+
+    public IEnumerator DieInSeconds(float length)
+    {
+        m_moveState = MovementState.Death;
+        Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
+        for (int i = 0; i < colliders.Length; ++i)
+        {
+            colliders[i].enabled = false;
+        }
+
+        float t = Time.time;
+        float elapsed = Time.time - t;
+        Color c;
+
+        while (elapsed < length)
+        {
+            c = m_renderer.color;
+            c.a = Mathf.Lerp(1.0f, 0.0f, elapsed / length);
+            m_renderer.color = c;
+            yield return null;
+            elapsed = Time.time - t;
+        }
+
+        m_body.isKinematic = true;
+        m_body.velocity = Vector2.zero;
+        GameplayManager.Instance.OnPlayerDied();
+
+        c = m_renderer.color;
+        c.a = 1.0f;
+        m_renderer.color = c;
+
+        gameObject.SetActive(false);
     }
 
     public void OnCollisionExit2D(Collision2D collision)

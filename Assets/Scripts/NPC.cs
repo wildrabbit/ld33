@@ -37,6 +37,8 @@ public class NPC : MonoBehaviour
 
     private NPCState m_state;
 
+    public float m_recoil = 0.2f;
+
     [SerializeField]
     private float m_maxSpeed = 1.0f;
     
@@ -198,10 +200,12 @@ public class NPC : MonoBehaviour
     }
     
 
-    public void OnHit (Weapon w)
+    public void OnHit (Weapon w, Vector3 direction)
     {
         if (m_state == NPCState.Dying) { return;  }
-        if (m_lifeData.UpdateHP(-w.m_damage))
+        bool died = m_lifeData.UpdateHP(-w.m_damage);
+        transform.Translate(direction * m_recoil);
+        if (died)
         {
             StartCoroutine(DieInSeconds(1.0f));
         }
@@ -240,5 +244,21 @@ public class NPC : MonoBehaviour
     public void OnPlayerAction()
     {
         Debug.Log(m_message);
+    }
+
+
+    public bool CanHitCharacter(PlayerControl go)
+    {
+        return true;
+    }
+
+    public bool CanHitCharacter(Enemy go)
+    {
+        return false;
+    }
+
+    public bool CanHitCharacter(NPC go)
+    {
+        return false;
     }
 }
