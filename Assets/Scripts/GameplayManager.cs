@@ -38,6 +38,12 @@ public class GameplayManager : MonoBehaviour
 
     private GameOverType m_gameOver;
 
+    private Rect m_boundaries;
+    public Rect Boundaries
+    {
+        get { return m_boundaries; }
+    }
+
     void Awake ()
     {
         Instance = this;
@@ -52,6 +58,16 @@ public class GameplayManager : MonoBehaviour
         m_killedCreatureCount = m_killedNPCCount = 0;
         m_spawnedCreatures = m_spawnedNPCCount = 0;
         m_elapsed = 0.0f;
+
+        m_boundaries = new Rect();
+        Camera cam = Camera.main;
+        float camHHeight = cam.orthographicSize;
+        float camHWidth = camHHeight * cam.aspect;
+        cam.transform.position.Set(0,0,cam.transform.position.z);
+        m_boundaries.x = -camHWidth;
+        m_boundaries.width = camHWidth * 2;
+        m_boundaries.y = 2 * camHHeight;
+        m_boundaries.height = camHHeight * 4; // At the moment there are two areas on top of each other
     }
 
     void Update()
