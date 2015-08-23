@@ -43,7 +43,7 @@ GameObject:
   - 4: {fileID: 494454}
   - 61: {fileID: 6111030}
   m_Layer: 12
-  m_Name: bodyCollisions
+  m_Name: bodyCollision
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -176,9 +176,9 @@ BoxCollider2D:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_Offset: {x: 0, y: .460000008}
+  m_Offset: {x: .00653171539, y: .460000038}
   serializedVersion: 2
-  m_Size: {x: .639999986, y: .850000024}
+  m_Size: {x: .685724854, y: .850000024}
 --- !u!61 &6139532
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -189,9 +189,9 @@ BoxCollider2D:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_Offset: {x: 0, y: .258401155}
+  m_Offset: {x: 4.76837158e-07, y: .203014731}
   serializedVersion: 2
-  m_Size: {x: .739829242, y: .498143196}
+  m_Size: {x: .622249901, y: .387370348}
 --- !u!82 &8286114
 AudioSource:
   m_ObjectHideFlags: 1
@@ -348,7 +348,7 @@ MonoBehaviour:
   m_laserOffset: {x: .680000007, y: .0299999993}
   m_shootVisibility:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4352
   m_laserVisibility:
     serializedVersion: 2
     m_Bits: 256

@@ -84,6 +84,11 @@ public class NPC : Entity
                 m_velocityTarget *= m_maxSpeed;
                 break;
             }
+            case NPCState.Hit:
+            {
+                UpdateHit();
+                break;
+            }
             default: break;
         }
 	
@@ -123,23 +128,7 @@ public class NPC : Entity
 
     public override bool CanBumpEntity(Entity e)
     {
-        System.Type entityType = e.GetType();
-        if (entityType == typeof(PlayerControl))
-        {
-            // return reactions[PlayerControl] == HOSTILE
-            return false;
-        }
-        else if (entityType == typeof(Enemy))
-        {
-            // return reactions[PlayerControl] == HOSTILE
-            return true;
-        }
-        else if (entityType == typeof(NPC))
-        {
-            // return reactions[PlayerControl] == HOSTILE
-            return false;
-        }
-        return false;
+        return e is Enemy;
     }
 
     override public bool CanShootEntity(Entity e)

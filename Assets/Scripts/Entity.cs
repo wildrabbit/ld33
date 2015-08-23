@@ -103,7 +103,7 @@ public abstract class Entity : MonoBehaviour
         m_weapon = GetComponentInChildren<Weapon>();
 
         m_mainCollider = GetComponent<Collider2D>();
-        m_bodyCollider = GetComponentInChildren<Collider2D>();
+        m_bodyCollider = transform.FindChild("bodyCollision").GetComponent<Collider2D>();
 
         m_lifeData = new CharacterLife();
         m_hitTime = 0.0f;
@@ -153,12 +153,22 @@ public abstract class Entity : MonoBehaviour
 
     virtual public void OnCollisionEnter2D(Collision2D collision)
     {
-        Entity e = collision.collider.GetComponent<Entity>();
-        if (e != null)
+        bool bodyCollision = collision.collider.gameObject.layer == m_bodyCollider.gameObject.layer;
+        bool groundCollision = collision.collider.gameObject.layer == LayerMask.NameToLayer("Static");
+        
+        if (bodyCollision)
         {
-            OnBumped(e);
+            Entity e = collision.collider.GetComponentInParent<Entity>();
+            if (e != null)
+            {
+                OnBumped(e);
+            }            
         }
-        m_body.isKinematic = true;
+
+        if (!groundCollision)
+        {
+            m_body.isKinematic = true;
+        }
     }
     virtual public void OnCollisionExit2D(Collision2D collision)
     {
@@ -238,7 +248,9 @@ public abstract class Entity : MonoBehaviour
         }
 
         if (m_weapon.m_recoilPercent > 0.0f)
-        transform.Translate(m_currentOrientation * m_weapon.m_recoilPercent);
+        transform.Translate(-m_currentOrientation * m_weapon.m_recoilPercent);
+
+        m_weapon.Shoot();
 
         if (m_audioSource != null && m_shootSound != null)
         {
@@ -267,6 +279,7 @@ public abstract class Entity : MonoBehaviour
         {
             m_audioSource.PlayOneShot(m_hitSound);
             HitReaction();
+            m_hitTime = Time.time;
         }
     }
 
@@ -290,7 +303,6 @@ public abstract class Entity : MonoBehaviour
             yield return null;
             elapsed = Time.time - t;
         }
-
 
         c = m_renderer.color;
         c.a = 1.0f;

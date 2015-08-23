@@ -36,11 +36,16 @@ public class Enemy : Entity
     private const float HOSTILE_ON_SIGHT_DURATION = 15.0f;
     private const float HOSTILE_ON_HIT_DURATION = 25.0f;
 
+    public Color m_neutralColour;
+    public Color m_hostileColour;
+
     private EnemyPersonality m_personality; // Immutable!
     
     private EnemyReaction m_currentReaction; // Dependent on environment
 
     private EnemyState m_state;
+
+    private static System.Type[] s_excludedTargetTypes = new System.Type[] { typeof(Enemy) };
     
     override protected void Awake ()
     {
@@ -48,6 +53,13 @@ public class Enemy : Entity
         m_personality = EnemyPersonality.Cautious;
         m_currentReaction = EnemyReaction.Neutral;
         m_state = EnemyState.None;
+    }
+    public void ChangeReaction(EnemyReaction reaction)
+    {
+        m_currentReaction = reaction;
+        Color newC = m_currentReaction == EnemyReaction.Neutral ? m_neutralColour : m_hostileColour;
+        newC.a = m_renderer.color.a;
+        m_renderer.color = newC;        
     }
 
     override protected void Start()
@@ -60,7 +72,9 @@ public class Enemy : Entity
     {
         base.Initialize(maxHP, maxSpeed);
         GameplayManager.Instance.AddEnemy(this);
-        m_state = EnemyState.Wandering;
+        ChangeReaction(EnemyReaction.Neutral);
+        
+        m_state = EnemyState.Wandering;        
     }
 
     public void SetPersonality (EnemyPersonality personality)
@@ -87,7 +101,7 @@ public class Enemy : Entity
                 {
                     if (m_currentReaction == EnemyReaction.Hostile)
                     {
-                        List<Entity> targets = GameplayManager.Instance.GetTargetsOnSight(this);
+                        List<Entity> targets = GameplayManager.Instance.GetTargetsOnSight(this, s_excludedTargetTypes);
                         if (targets.Count > 0)
                         {
                             m_state = EnemyState.Chasing;
@@ -125,7 +139,7 @@ public class Enemy : Entity
                 }
                 else
                 {
-                    List<Entity> targets = GameplayManager.Instance.GetTargetsOnSight(this);
+                    List<Entity> targets = GameplayManager.Instance.GetTargetsOnSight(this, s_excludedTargetTypes);
                     if (targets.Count > 0)
                     {
                         m_targetEntity = targets[0];
@@ -140,8 +154,15 @@ public class Enemy : Entity
                         m_reactionTime = Time.time;                        
                     }
                 }
+                m_velocityTarget.Normalize();
+                m_velocityTarget *= m_maxSpeed * 1.1f;
+                break;
             }
-            break;
+            case EnemyState.Hit:
+            {
+                UpdateHit();
+                break;
+            }
             default: break;
         }
 	
@@ -160,7 +181,7 @@ public class Enemy : Entity
                     {
                         m_reactionTime = -1.0f;
                         Debug.LogFormat("{0} goes back to neutral", name);
-                        m_currentReaction = EnemyReaction.Neutral;
+                        ChangeReaction(EnemyReaction.Neutral);
                         m_state = EnemyState.Wandering;
                         m_targetEntity = null;
                         ResetWanderTarget();
@@ -203,9 +224,10 @@ public class Enemy : Entity
         Color c = m_renderer.color;
         c.a = 1.0f;
         m_renderer.color = c;
+        ChangeReaction(EnemyReaction.Hostile);
         m_currentReaction = EnemyReaction.Hostile;
-        
-        List<Entity> objects = GameplayManager.Instance.GetTargetsOnSight(this);
+
+        List<Entity> objects = GameplayManager.Instance.GetTargetsOnSight(this, s_excludedTargetTypes);
         if (objects.Count > 0)
         {
             m_state = EnemyState.Chasing;
@@ -239,8 +261,8 @@ public class Enemy : Entity
         if (GameplayManager.Instance.paused) { return; }
         if (m_state == EnemyState.Dead) { return; }
 
-        m_currentReaction = EnemyReaction.Hostile;
-        List<Entity> objects = GameplayManager.Instance.GetTargetsOnSight(this);
+        ChangeReaction(EnemyReaction.Hostile);
+        List<Entity> objects = GameplayManager.Instance.GetTargetsOnSight(this, s_excludedTargetTypes);
         if (objects.Count > 0)
         {
             m_targetEntity = objects[0];
@@ -261,8 +283,8 @@ public class Enemy : Entity
         if (GameplayManager.Instance.paused) { return; }
         if (m_state == EnemyState.Dead) { return; }
 
-        m_currentReaction = EnemyReaction.Hostile;
-        List<Entity> objects = GameplayManager.Instance.GetTargetsOnSight(this);
+        ChangeReaction(EnemyReaction.Hostile);
+        List<Entity> objects = GameplayManager.Instance.GetTargetsOnSight(this, s_excludedTargetTypes);
         if (objects.Count > 0)
         {
             m_targetEntity = objects[0];

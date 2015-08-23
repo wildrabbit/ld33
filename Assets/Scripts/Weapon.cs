@@ -14,6 +14,11 @@ public class Weapon : MonoBehaviour
     public float m_recoilPercent = 0.2f;
     public float m_errorChance = 0.1f;
 
+    public float m_defaultWidth = 0.01f;
+    public float m_shootWidth = 0.05f;
+    public float m_shootVisibleTime = 0.3f;
+    private float m_shootVisible;
+
     private float m_effectiveRange;
     public float Range
     {
@@ -60,11 +65,23 @@ public class Weapon : MonoBehaviour
             return;
         }
 
+        if (m_shootVisible >= 0 && Time.time - m_shootVisible > m_shootVisibleTime)
+        {
+            m_laserAim.SetWidth(m_defaultWidth, m_defaultWidth);
+            m_shootVisible = -1.0f;
+        }
+
         UpdateOrientation();
         UpdateVisibility();
         
         SetLaserState(m_parent.CanShoot());
 	}
+
+    public void Shoot ()
+    {
+        m_laserAim.SetWidth(m_shootWidth, m_shootWidth);
+        m_shootVisible = Time.time;
+    }
 
     public List<Entity> GetShootTargets ()
     {

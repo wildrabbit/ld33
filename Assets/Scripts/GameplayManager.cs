@@ -175,17 +175,23 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    public List<Entity> GetTargetsOnSight(Enemy e)
+    public List<Entity> GetTargetsOnSight(Entity e, System.Type[] exclusionList = null)
     {
         List<Entity> targets = new List<Entity>();
         for (int i = 0; i < m_allEntities.Count; ++i )
         {
-            if (m_allEntities[i] != e &&  e.CanSee(m_allEntities[i]))
+            if (m_allEntities[i] != e &&  e.CanSee(m_allEntities[i]) && (exclusionList == null || System.Array.IndexOf(exclusionList, m_allEntities[i].GetType()) == -1))
             {
                 targets.Add(m_allEntities[i]);
             }
         }
-        targets.Sort((x,y) => Vector2.Distance(x.transform.position,e.transform.position).CompareTo(Vector2.Distance(y.transform.position,e.transform.position)));
+        targets.Sort((x,y) => 
+            {
+                if (x is PlayerControl && !(y is PlayerControl)) return -1;
+                if (y is PlayerControl && !(x is PlayerControl)) return 1;
+                return Vector2.Distance(x.transform.position, e.transform.position).CompareTo(Vector2.Distance(y.transform.position, e.transform.position));
+            }
+            );
         return targets;
     }
 }

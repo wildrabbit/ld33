@@ -62,7 +62,7 @@ public class EnemySpawner : MonoBehaviour
         {
             m_enemyPool[i] = Instantiate<Enemy>(m_enemyPrefab);
             m_enemyPool[i].transform.SetParent(m_enemyRoot);
-            m_enemyPool[i].transform.localPosition = Vector2.zero;
+            m_enemyPool[i].transform.position = transform.position;
 
             m_enemyPool[i].gameObject.SetActive(false);
         }
@@ -86,6 +86,8 @@ public class EnemySpawner : MonoBehaviour
             candidate.gameObject.SetActive(true);
             candidate.Initialize(m_defaultHP, m_defaultSpeed);
             candidate.SetPersonality(EnemyPersonality.Cautious);
+            candidate.transform.position = transform.position;
+
             GameplayManager.Instance.AddEnemy(candidate);            
         }
     }
