@@ -29,21 +29,12 @@ public enum NPCState
     None
 }
 
-public class NPC : MonoBehaviour
+public class NPC : Entity
 {
-    private NPCPersonality m_personality; // Immutable!
-    
-    private NPCReaction m_currentReaction; // Dependent on environment
+    //private NPCPersonality m_personality; // Immutable!
+    //private NPCReaction m_currentReaction; // Dependent on environment
 
     private NPCState m_state;
-
-    public float m_recoil = 0.2f;
-
-    [SerializeField]
-    private float m_maxSpeed = 1.0f;
-    
-    [SerializeField]
-    private float m_defaultHP = 3.0f;
 
     [SerializeField]
     private float m_talkDistance = 1.0f;
@@ -51,15 +42,6 @@ public class NPC : MonoBehaviour
 
     [SerializeField]
     private string m_message = "We're doomed!!";
-
-    public float Orientation
-    {
-        get
-        {
-            float angle = Mathf.Atan2(m_currentOrientation.y, m_currentOrientation.x);
-            return Mathf.Rad2Deg * angle;
-        }
-    }
 
     public bool CanTalk
     {
@@ -69,111 +51,47 @@ public class NPC : MonoBehaviour
         }
     }
 
-    private Rigidbody2D m_body;
-    private SpriteRenderer m_renderer;
-
-    // Physics vars
-    private Vector2 m_velocityTarget;
-    private Vector2 m_orientationTarget;
-    private Vector2 m_currentOrientation;
-    private Vector2 m_wanderTarget;
-
-    private CharacterLife m_lifeData;
-
-    private const float MIN_DECISION_TIME = 0.8f;
-    private const float MAX_DECISION_TIME = 1.5f;
-
-    private float m_lastDecisionTime;
-    private float m_nextDecisionTime;
-
-    void Awake ()
+    override protected void Awake()
     {
-        m_renderer = GetComponent<SpriteRenderer>();
-        m_body = GetComponent<Rigidbody2D>();
-
-        m_personality = NPCPersonality.Cautious;
-        m_currentReaction = NPCReaction.Neutral;
+        base.Awake();
         m_state = NPCState.None;
-
-        m_lifeData = new CharacterLife();
     }
 
-	// Use this for initialization
-	void Start () 
+    override public void Initialize(int maxHP, float maxSpeed)
     {
+        base.Initialize(maxHP, maxSpeed);
         m_state = NPCState.Wandering;
         GameplayManager.Instance.AddNPC(this);
-	}
-
-    void FixedUpdate()
-    {
-        if (m_state == NPCState.Dying || m_body.isKinematic)
-        {
-            m_velocityTarget = Vector2.zero;
-        }
-        m_body.velocity = m_velocityTarget;
     }
 	
 	// Update is called once per frame
-	void Update () 
+	override protected void Update () 
     {
-        if (GameplayManager.Instance.paused)
-        {
-            return;
-        }
+        base.Update();
 
-        if (m_state == NPCState.Dying)
-        {
-            return;
-        }
-
-        UpdateReaction();
-
+        if (IsDying()) { return; }
 
         switch (m_state)
         {
             case NPCState.Wandering:
+            {
+                if (Time.time - m_lastWanderDecisionTime >= m_nextWanderDecisionTime)
                 {
-                    if (Time.time - m_lastDecisionTime >= m_nextDecisionTime)
-                    {
-                        ResetWanderTarget();
-                    }
-                    m_velocityTarget = m_wanderTarget - (Vector2) transform.position;
-                    m_velocityTarget.Normalize();
-                    m_velocityTarget *= m_maxSpeed;
-                    break;
+                    ResetWanderTarget();
                 }
+                m_velocityTarget = m_wanderPosition - (Vector2) transform.position;
+                m_velocityTarget.Normalize();
+                m_velocityTarget *= m_maxSpeed;
+                break;
+            }
+            default: break;
         }
 	
 	}
-    private void UpdateReaction()
+
+    override public void OnCollisionEnter2D(Collision2D collision)
     {
-
-    }
-
-    public void Initialize (NPCPersonality personality, int maxHP, float maxSpeed)
-    {
-        m_personality = personality;
-        m_maxSpeed = maxSpeed;
-        m_lifeData.Initialise(maxHP);
-
-        Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
-        for (int i = 0; i < colliders.Length; ++i)
-        {
-            colliders[i].enabled = true;
-        }
-
-        m_state = NPCState.Wandering;
-    }
-
-    public void OnCollisionEnter2D(Collision2D collision)
-    {
-        Rigidbody2D otherBody = collision.collider.GetComponent<Rigidbody2D>();        
-        if (otherBody != null)
-        {
-            m_velocityTarget = Vector2.zero;                 
-            m_body.isKinematic = true;
-        }
+        base.OnCollisionEnter2D(collision);
 
         if (m_state == NPCState.Wandering)
         {
@@ -181,84 +99,100 @@ public class NPC : MonoBehaviour
         }
     }
 
-    public void OnCollisionExit2D(Collision2D collision)
-    {
-        m_body.isKinematic = false;
-    }
-
-    
-
     private void ResetWanderTarget()
     {
         Camera mainCam = Camera.main;
         float vSize = mainCam.orthographicSize;
         float hSize = mainCam.orthographicSize * mainCam.aspect;
 
-        m_wanderTarget = new Vector2(Random.Range(-hSize, hSize), Random.Range(-vSize, vSize));
-        m_nextDecisionTime = Random.Range(MIN_DECISION_TIME, MAX_DECISION_TIME);
-        m_lastDecisionTime = Time.time;
+        m_wanderPosition = new Vector2(Random.Range(-hSize, hSize), Random.Range(-vSize, vSize));
+        m_nextWanderDecisionTime = Random.Range(m_minWanderDecisionTime, m_maxWanderDecisionTime);
+        m_lastWanderDecisionTime = Time.time;
     }
     
-
-    public void OnHit (Weapon w, Vector3 direction)
-    {
-        if (m_state == NPCState.Dying) { return;  }
-        bool died = m_lifeData.UpdateHP(-w.m_damage);
-        transform.Translate(direction * m_recoil);
-        if (died)
-        {
-            StartCoroutine(DieInSeconds(1.0f));
-        }
-    }
-
-    public IEnumerator DieInSeconds(float length)
-    {
-        m_state = NPCState.Dying;
-        Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
-        for (int i = 0; i < colliders.Length; ++i)
-        {
-            colliders[i].enabled = false;
-        }
-
-        float t = Time.time;        
-        float elapsed = Time.time - t;
-        Color c;
-
-        while (elapsed < length)
-        {
-            c = m_renderer.color;
-            c.a = Mathf.Lerp(1.0f, 0.0f, elapsed / length);
-            m_renderer.color = c;
-            yield return null;
-            elapsed = Time.time - t;
-        }
-
-        
-        c = m_renderer.color;
-        c.a = 1.0f;
-        m_renderer.color = c;
-        GameplayManager.Instance.RemoveNPC(this);
-        gameObject.SetActive(false);
-    }
 
     public void OnPlayerAction()
     {
         Debug.Log(m_message);
     }
 
-
-    public bool CanHitCharacter(PlayerControl go)
+    public override bool IsEthereal()
     {
-        return true;
+        return m_state == NPCState.Dead || m_state == NPCState.Dying || m_state == NPCState.Hit;
     }
 
-    public bool CanHitCharacter(Enemy go)
+    public override bool CanBumpEntity(Entity e)
     {
+        System.Type entityType = e.GetType();
+        if (entityType == typeof(PlayerControl))
+        {
+            // return reactions[PlayerControl] == HOSTILE
+            return false;
+        }
+        else if (entityType == typeof(Enemy))
+        {
+            // return reactions[PlayerControl] == HOSTILE
+            return true;
+        }
+        else if (entityType == typeof(NPC))
+        {
+            // return reactions[PlayerControl] == HOSTILE
+            return false;
+        }
         return false;
     }
 
-    public bool CanHitCharacter(NPC go)
+    override public bool CanShootEntity(Entity e)
     {
+        System.Type entityType = e.GetType();
+        if (entityType == typeof(PlayerControl))
+        {
+            // return reactions[PlayerControl] == HOSTILE
+            return false;
+        }
+        else if (entityType == typeof(Enemy))
+        {
+            // return reactions[PlayerControl] == HOSTILE
+            return true;
+        }
+        else if (entityType == typeof(NPC))
+        {
+            // return reactions[PlayerControl] == HOSTILE
+            return false;
+        }
         return false;
+    }
+
+    protected override void OnDied()
+    {
+        GameplayManager.Instance.RemoveNPC(this);
+    }
+
+    public override void OnHitFinished()
+    {
+        base.OnHitFinished();
+        Color c = m_renderer.color;
+        c.a = 1.0f;
+        m_renderer.color = c;
+        m_state = NPCState.Wandering;
+    }
+
+    protected override void HitReaction()
+    {
+        m_state = NPCState.Hit;
+        
+        Color c = m_renderer.color;
+        c.a = 0.5f;
+        m_renderer.color = c;
+    }
+
+    protected override void SetDying()
+    {
+        m_state = NPCState.Dying;
+    }
+
+    public override bool IsDying()
+    {
+        return m_state == NPCState.Dying || m_state == NPCState.Dead;
     }
 }

@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public enum MovementState
+public enum PlayerState
 {
     None = -1,
     Idle = 0,
@@ -10,418 +11,154 @@ public enum MovementState
     Death
 }
 
-public enum ActionState
+public class PlayerControl : Entity 
 {
-    None = -1,
-    Idle = 0,
-    Shooting
-}
-
-public class PlayerControl : MonoBehaviour 
-{
-    private const float DEADZONE_RADIUS = 0.1f;
-    private const float DEADZONE_TRIGGER = -0.3f;
-
-    public float m_maxSpeed = 1.0f;
-    public float m_aimSpeed = 1.0f;
-    public float m_range = 2.0f;
-    public float m_errorChance = 0.1f;
-    public float m_recoil = 0.2f;
-    public float m_hitTime = 0.5f;
-
-    public float m_shootCooldown = 0.4f;
-    private float m_lastShoot;
-    
-    public int m_startHP = 10;
-
-    public LayerMask m_characterLayer;
-    public LayerMask m_laserVisibility;
-    public Transform m_laser;
-
-    private CharacterLife m_lifeData;
-
-    public float Range
-    {
-        get { return m_effectiveRange; }
-    }
-
-    public int SortingOrder
-    {
-        get { return m_renderer.sortingOrder; }
-    }
-
-    public float Orientation
-    {
-        get 
-        {
-            float angle = Mathf.Atan2(m_currentAiming.y, m_currentAiming.x);
-            return Mathf.Rad2Deg * angle;
-        }
-    }
-
-    private Rigidbody2D m_body;
-    private SpriteRenderer m_renderer;
-    private Weapon m_weapon;
-    private AudioSource m_audioSource;
-
-    // Input variables
-    private bool m_wasUsingGamepad;
-    private Vector2 m_movementInput;
-    private Vector2 m_aimingInput;
-    private bool m_shootWasPressed;
-    private bool m_shootPressed;
-    private bool m_actionWasPressed;
-    private bool m_actionPressed;
+    private PlayerInput m_input;
 
     // FSM vars
-    private float m_lastHit;
-    private MovementState m_oldState;
-    private MovementState m_moveState;
+    private PlayerState m_oldState;
+    private PlayerState m_state;
 
-    // Physics vars
-    private Vector2 m_velocityTarget;
-    private Vector2 m_currentAiming;
-    private Vector2 m_aimingTarget;
-
-    private float m_effectiveRange;
-
-
-#region unity_methods
-    void Awake()
+    override protected void Awake()
     {
-        m_body = GetComponent<Rigidbody2D>();
-        m_renderer = GetComponent<SpriteRenderer>();
-        m_weapon = GetComponentInChildren<Weapon>();
-        m_audioSource = GetComponent<AudioSource>();
-
-        m_moveState = MovementState.None;
-        m_oldState = MovementState.None;
-
-        m_lifeData = new CharacterLife();
-        m_lastHit = 0.0f;
+        base.Awake();
+        m_input = new PlayerInput();
     }
 
-	// Use this for initialization
-	void Start () 
+    override public void Initialize(int maxHP, float maxSpeed)
     {
-        m_moveState = MovementState.Idle;
-        EnterState();
-
-        m_lifeData.Initialise(m_startHP);
-        m_movementInput = m_velocityTarget = m_aimingInput = m_aimingTarget = m_currentAiming = Vector2.zero;
-
-        m_lastShoot = -1.0f;
-
-        m_shootPressed = m_actionPressed = m_shootWasPressed = m_actionWasPressed = false;
-	}
+        base.Initialize(maxHP, maxSpeed);
+        m_input.Reset();
+        GameplayManager.Instance.AddPlayer(this);
+        m_state = PlayerState.Idle;
+    }
 
     // Update is called once per frame
-    void Update()
+    override protected void Update()
     {
-        if (GameplayManager.Instance.paused) return;
-
+        base.Update();
         FetchInput();
         UpdateMove();
-        //if (m_nextMove != MovementState.None && m_nextMove != m_moveState)
-        //{
-        //    if (m_moveState != MovementState.None)
-        //    {
-        //        ExitState();
-        //    }
-        //    m_moveState = m_nextMove;
-        //    EnterState();
-        //    m_nextMove = MovementState.None;
-        //}
-
-        //UpdateAction();
-        //if (m_nextAction != ActionState.None && m_nextAction != m_actionState)
-        //{
-        //    if (m_actionState != ActionState.None)
-        //    {
-        //        ExitActionState();
-        //    }
-        //    m_actionState = m_nextAction;
-        //    EnterActionState();
-        //    m_nextAction = ActionState.None;
-        //}
    }
 
-    void FixedUpdate()
+    override public bool IsDying()
     {
-        if (m_moveState == MovementState.Death)
-        {
-            return;
-        }
+        return m_state == PlayerState.Death;
+    }
 
-        if (m_body.isKinematic)
-        {
-            m_body.velocity = Vector2.zero;                 
-        }
-        else m_body.velocity = m_velocityTarget;
+    override protected void SetDying()
+    {
+        m_state = PlayerState.Death;
+    }
 
-        if (m_aimingTarget != m_currentAiming)
-        {
-            m_currentAiming = m_aimingTarget;
-        }
+    public override void OnHitFinished()
+    {
+        base.OnHitFinished();
 
-        LayerMask visibility = m_laserVisibility;
-        if (m_weapon != null && !m_weapon.m_piercing)
-        {
-            visibility.value = visibility.value | (1 << LayerMask.NameToLayer("Characters"));
-        }
+        Color c = m_renderer.color;
+        c.a = 1.0f;
+        m_renderer.color = c;
 
-        RaycastHit2D info = Physics2D.Raycast(m_laser.position, m_currentAiming, m_range, visibility);
-        if (info.collider != null)
+        if (m_oldState != PlayerState.None)
         {
-            m_effectiveRange = info.distance;
+            m_state = m_oldState;
         }
         else
         {
-            m_effectiveRange = m_range;
+            m_state = PlayerState.Idle;
         }
-    }
-#endregion
-    //---------------
-#region FSM
-    private void EnterActionState()
-    {
+        m_oldState = PlayerState.None;
     }
 
-    private void EnterState()
+    public override bool CanShoot()
     {
-
-    }
-	
-
-
-    private void ExitActionState()
-    {
-    }
-
-    private void UpdateAction()
-    {
-    }
-
-    private void ExitState()
-    {
+        return base.CanShoot();
     }
 
     private void UpdateMove()
     {
-        if (m_moveState == MovementState.Death)
+        if (m_state == PlayerState.Death)
         {
             return;
         }
 
-        if (m_moveState == MovementState.Hit)
+        if (m_state == PlayerState.Hit)
         {
-            if (Time.time - m_lastHit >= m_hitTime)
-            {
-                Color c = m_renderer.color;
-                c.a = 1.0f;
-                m_renderer.color = c;
-                
-                if (m_oldState!= MovementState.None)
-                {
-                    m_moveState = m_oldState;
-                }
-                else
-                {
-                    m_moveState = MovementState.Idle;
-                }
-                m_oldState = MovementState.None;
-            }
+            UpdateHit();
         }
 
         m_velocityTarget = Vector2.zero;
-        if (m_movementInput != Vector2.zero)
+        if (m_input.m_movementInput  != Vector2.zero)
         {
-            m_velocityTarget = m_movementInput * m_maxSpeed;
+            m_velocityTarget = m_input.m_movementInput * m_maxSpeed;
         }
 
-        m_aimingTarget = m_aimingInput;
+        m_orientationTarget = (m_input.m_aimingInput - (Vector2)transform.position).normalized;
 
         if (m_lastShoot < 0 || Time.time - m_lastShoot >= m_shootCooldown)
         {
             m_lastShoot = -1.0f;
-            if (m_shootPressed)
-            {
-                Shoot();
-            }            
+        }
+        
+        if (m_input.m_shootPressed && CanShoot())
+        {
+            Shoot();
+        }            
+
+
+        if (m_weapon != null)
+        {
         }
 
-        m_weapon.SetLaserState(m_lastShoot < 0 || Time.time - m_lastShoot >= m_shootCooldown);
-
-        if (m_actionWasPressed && !m_actionPressed)
+        if (m_input.m_actionWasPressed && !m_input.m_actionPressed)
         {
             GameplayManager.Instance.OnPlayerAction();
         }
     }
 
-    void Shoot ()
+    override public void Shoot ()
     {
-        RaycastHit2D info = Physics2D.Raycast(m_laser.position, m_currentAiming, m_effectiveRange, m_characterLayer);
+        base.Shoot();
         CameraShake cs = Camera.main.GetComponent<CameraShake>();
-        if (info.collider != null)
-        {
-            Enemy e = info.collider.GetComponentInParent<Enemy>();
-            if (e != null)
-            {
-                e.OnHit(m_weapon, m_currentAiming);
-            }
-
-            NPC n = info.collider.GetComponentInParent<NPC>();
-            if (n != null)
-            {
-                n.OnHit(m_weapon, m_currentAiming);
-            }
-        }
-        transform.Translate(m_currentAiming * -m_recoil);
         if (cs != null)
         {
             cs.StartShakeWithDuration(0.1f);
         }
-        m_audioSource.Play();
-        m_lastShoot = Time.time;
-
     }
-#endregion
     //---------------
     void FetchInput()
     {
-        bool shootPressed = false;
-        bool actionPressed = false;
-
-        //// Begin with gamepad controls
-        //m_movementInput.Set(Input.GetAxis("HorizontalPad"), Input.GetAxis("VerticalPad"));
-        //// Discard dead zones
-        //if (m_movementInput.magnitude < DEADZONE_RADIUS)
-        //{
-        //    m_movementInput.Set(0.0f, 0.0f);
-        //}
-        //else
-        //{
-        //    m_movementInput.Normalize();
-        //}
-
-        //Vector2 aim = new Vector2(Input.GetAxis("AimHorizontal"), Input.GetAxis("AimVertical"));
-        //if (aim.magnitude >= DEADZONE_RADIUS)
-        //{
-        //    m_aimingInput.Set(aim.x, aim.y);
-        //}
-        
-        //Debug.LogFormat("Trigger:  {0}", Input.GetAxis("ShootPad"));
-        //shootPressed = Input.GetAxis("ShootPad") > 0;
-        //actionPressed = Input.GetButton("ActionPad");
-
-        //if (m_movementInput != Vector2.zero || m_aimingInput != Vector2.zero ||  shootPressed || actionPressed)
-        //{
-        //    m_wasUsingGamepad = true;
-        //}
-        //else
-        {
-            m_movementInput.Set(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-
-            shootPressed = Input.GetButton("Shoot");
-            actionPressed = Input.GetButton("Action");
-
-            if (m_movementInput != Vector2.zero || shootPressed || actionPressed)
-            {
-                m_wasUsingGamepad = false;
-            }
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (!m_wasUsingGamepad)
-            {
-                m_aimingInput = mousePos - (Vector2)transform.position;
-                m_aimingInput.Normalize();
-            }            
-        }
-        
-        
-
-        m_shootWasPressed = m_shootPressed;
-        m_shootPressed = shootPressed;
-        m_actionWasPressed= m_actionPressed;
-        m_actionPressed= actionPressed;
+        m_input.Read();
     }
 
-    public void OnCollisionEnter2D(Collision2D collision)
+    public override bool IsEthereal()
     {
-        if (m_moveState == MovementState.Hit || m_moveState == MovementState.Death)
-        {
-            return;
-        }
-
-        bool willCauseDamage = false;
-        Enemy e = collision.collider.GetComponent<Enemy>();
-        if (e != null)
-        {
-            willCauseDamage = e.CanHitCharacter(this);
-        }
-
-        NPC n = collision.collider.GetComponent<NPC>();
-        if (n != null)
-        {
-            willCauseDamage = n.CanHitCharacter(this);
-        }
-
-
-        if (!willCauseDamage) { return; }
-        bool dead = m_lifeData.UpdateHP(-1);
-        Debug.LogFormat("Player hit! Current Hp: {0}", m_lifeData.HP);
-        if (dead)
-        {
-            StartCoroutine(DieInSeconds(1.0f));
-        }
-        else
-        {
-            m_moveState = MovementState.Hit;
-            m_oldState = m_moveState;
-            m_lastHit = Time.time;
-            Color c = m_renderer.color;
-            c.a = 0.5f;
-            m_renderer.color = c;
-        }
-        m_body.isKinematic = true;
+        return m_state == PlayerState.Hit || m_state == PlayerState.Death;
     }
 
-    public IEnumerator DieInSeconds(float length)
+    override protected void HitReaction()
     {
-        m_moveState = MovementState.Death;
-        Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
-        for (int i = 0; i < colliders.Length; ++i)
-        {
-            colliders[i].enabled = false;
-        }
+        m_state = PlayerState.Hit;
+        m_oldState = m_state;
 
-        float t = Time.time;
-        float elapsed = Time.time - t;
-        Color c;
-
-        while (elapsed < length)
-        {
-            c = m_renderer.color;
-            c.a = Mathf.Lerp(1.0f, 0.0f, elapsed / length);
-            m_renderer.color = c;
-            yield return null;
-            elapsed = Time.time - t;
-        }
-
-        m_body.isKinematic = true;
-        m_body.velocity = Vector2.zero;
-        GameplayManager.Instance.OnPlayerDied();
-
-        c = m_renderer.color;
-        c.a = 1.0f;
+        Color c = m_renderer.color;
+        c.a = 0.5f;
         m_renderer.color = c;
-
-        gameObject.SetActive(false);
     }
 
-    public void OnCollisionExit2D(Collision2D collision)
+    override public bool CanShootEntity(Entity e)
     {
-        m_body.isKinematic = false;
+        return e != this;
     }
 
+    override public bool CanBumpEntity(Entity e)
+    {
+        return false;
+    }
 
+    protected override void OnDied()
+    {
+        GameplayManager.Instance.RemovePlayer(this);
+        GameplayManager.Instance.OnPlayerDied();
+    }
 }

@@ -315,21 +315,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7904ce79245ca24bbf37f491ddb3d92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_minWanderDecisionTime: .800000012
+  m_maxWanderDecisionTime: 1.5
   m_maxSpeed: 5
-  m_aimSpeed: 1
-  m_range: 5
-  m_errorChance: .100000001
-  m_recoil: .200000003
-  m_hitTime: .5
+  m_orientationSpeed: 1
+  m_sightRadius: 6
+  m_hitRecovery: .5
   m_shootCooldown: .400000006
   m_startHP: 10
-  m_characterLayer:
+  m_visibilityMask:
     serializedVersion: 2
-    m_Bits: 4096
-  m_laserVisibility:
-    serializedVersion: 2
-    m_Bits: 256
-  m_laser: {fileID: 400752}
+    m_Bits: 7936
+  m_deathSound: {fileID: 8300000, guid: 017a60eadd75a044fb05bac4c279c464, type: 3}
+  m_hitSound: {fileID: 8300000, guid: febd513de75e3394bb45a9d3fcef5c1a, type: 3}
+  m_shootSound: {fileID: 8300000, guid: e23d20ad21cb8ee4cae6f3df1db2a7c5, type: 3}
 --- !u!114 &11481180
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -341,9 +340,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54acfe54c83a2434c86c360bb51c58f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_laserOffset: {x: .680000007, y: .0299999993}
   m_damage: 2
   m_piercing: 0
+  m_maxRange: 6
+  m_recoilPercent: .200000003
+  m_errorChance: .100000001
+  m_laserOffset: {x: .680000007, y: .0299999993}
+  m_shootVisibility:
+    serializedVersion: 2
+    m_Bits: 0
+  m_laserVisibility:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!120 &12067112
 LineRenderer:
   m_ObjectHideFlags: 1
@@ -391,7 +399,7 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_Materials:
-  - {fileID: 2100000, guid: 89447b86134addc46ba930ee6cbb2453, type: 2}
+  - {fileID: 10754, guid: 0000000000000000e000000000000000, type: 0}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 0
@@ -452,6 +460,10 @@ Prefab:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 89447b86134addc46ba930ee6cbb2453, type: 2}
+    - target: {fileID: 0}
+      propertyPath: m_visibilityMask.m_Bits
+      value: 7936
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 190810}

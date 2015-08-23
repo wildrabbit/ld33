@@ -84,7 +84,8 @@ public class EnemySpawner : MonoBehaviour
         {
             candidate.name = string.Format("Enemy{0}", m_spawnCount - 1);
             candidate.gameObject.SetActive(true);
-            candidate.Initialize(EnemyPersonality.Cautious, m_defaultHP, m_defaultSpeed);
+            candidate.Initialize(m_defaultHP, m_defaultSpeed);
+            candidate.SetPersonality(EnemyPersonality.Cautious);
             GameplayManager.Instance.AddEnemy(candidate);            
         }
     }

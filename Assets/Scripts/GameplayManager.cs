@@ -32,6 +32,8 @@ public class GameplayManager : MonoBehaviour
     private List<Enemy> m_activeEnemies;
     private List<NPC> m_activeNPCs;
 
+    private List<Entity> m_allEntities;
+
     private List<EnemySpawner> m_spawners;
 
     private GameOverType m_gameOver;
@@ -39,9 +41,10 @@ public class GameplayManager : MonoBehaviour
     void Awake ()
     {
         Instance = this;
+        m_allEntities = new List<Entity>();
         m_activeEnemies = new List<Enemy>();
         m_activeNPCs = new List<NPC>();
-        m_player = FindObjectOfType<PlayerControl>();
+        m_player = null;
         m_spawners = new List<EnemySpawner>(FindObjectsOfType<EnemySpawner>());
 
         m_gameOver = GameOverType.None;
@@ -110,32 +113,47 @@ public class GameplayManager : MonoBehaviour
             }
         }
     }
-    
+
+    public void AddPlayer (PlayerControl p)
+    {
+        m_player = p;
+        m_allEntities.Add(p);
+    }
+
+    public void RemovePlayer(PlayerControl p)
+    {
+        m_allEntities.Remove(p);
+    }
+
     public void AddEnemy(Enemy e)
     {
         m_spawnedCreatures++;
         m_activeEnemies.Add(e);
+        m_allEntities.Add(e);
     }
 
     public void RemoveEnemy(Enemy e)
     {
         m_killedCreatureCount++;
         m_activeEnemies.Remove(e);
+        m_allEntities.Remove(e);
     }
 
     public void AddNPC(NPC n)
     {
         m_spawnedNPCCount++;
         m_activeNPCs.Add(n);
+        m_allEntities.Add(n);
     }
 
     public void RemoveNPC(NPC n)
     {
         m_killedNPCCount++;
         m_activeNPCs.Remove(n);
+        m_allEntities.Remove(n);
     }
 
-    public void OnEnemyHit (Enemy e)
+    public void OnEnemyWasHit (Enemy e)
     {
         for (int i = 0; i < m_activeEnemies.Count; ++i)
         {
@@ -146,24 +164,28 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    public List<GameObject> GetTargetsOnSight(Enemy e)
+    public void OnEnemyDied(Enemy e)
     {
-        List<GameObject> targets = new List<GameObject>();
-        if (e.CanSee(m_player))
+        for (int i = 0; i < m_activeEnemies.Count; ++i)
         {
-            targets.Add(m_player.gameObject);
-        }
-
-        for (int i = 0; i < m_activeNPCs.Count; ++i )
-        {
-            if(e.CanSee(m_activeNPCs[i]))
+            if (m_activeEnemies[i] != e && m_activeEnemies[i].CanSee(e))
             {
-                targets.Add(m_activeNPCs[i].gameObject);
+                m_activeEnemies[i].OnSawEnemyDie(e);
             }
         }
+    }
 
+    public List<Entity> GetTargetsOnSight(Enemy e)
+    {
+        List<Entity> targets = new List<Entity>();
+        for (int i = 0; i < m_allEntities.Count; ++i )
+        {
+            if (m_allEntities[i] != e &&  e.CanSee(m_allEntities[i]))
+            {
+                targets.Add(m_allEntities[i]);
+            }
+        }
         targets.Sort((x,y) => Vector2.Distance(x.transform.position,e.transform.position).CompareTo(Vector2.Distance(y.transform.position,e.transform.position)));
-
         return targets;
     }
 }
