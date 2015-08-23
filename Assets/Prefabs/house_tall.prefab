@@ -25,7 +25,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 116638}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.03000021, y: 0, z: 0}
+  m_LocalPosition: {x: 1.30452645, y: 8.39191055, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -40,9 +40,9 @@ BoxCollider2D:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_Offset: {x: 0, y: .49000001}
+  m_Offset: {x: 0, y: .879999995}
   serializedVersion: 2
-  m_Size: {x: 2, y: 1.01896}
+  m_Size: {x: 2.86999989, y: 1.28999996}
 --- !u!114 &11407244
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -78,8 +78,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1289365457
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300008, guid: 025051b4cc76c2d40a09345f2f091cd6, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300004, guid: 01968b859cb76ed4d8fc3a4a2ffe38fd, type: 3}
+  m_Color: {r: .783999979, g: .785489678, b: 1, a: 1}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
@@ -91,6 +91,19 @@ Prefab:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 89447b86134addc46ba930ee6cbb2453, type: 2}
+    - target: {fileID: 0}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300004, guid: 01968b859cb76ed4d8fc3a4a2ffe38fd,
+        type: 3}
+    - target: {fileID: 0}
+      propertyPath: m_Color.r
+      value: .783999979
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_Color.g
+      value: .785489678
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 116638}
