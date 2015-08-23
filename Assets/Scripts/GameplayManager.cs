@@ -122,6 +122,7 @@ public class GameplayManager : MonoBehaviour
 
     public void RemovePlayer(PlayerControl p)
     {
+        m_player = null;
         m_allEntities.Remove(p);
     }
 
