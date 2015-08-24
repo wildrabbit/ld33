@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
 
 public enum GameOverType
@@ -8,7 +10,7 @@ public enum GameOverType
     Genocidal,
     Extermination,
     Resistance,
-    Research
+    Psychopath
 }
 
 public class GameplayManager : MonoBehaviour 
@@ -36,6 +38,7 @@ public class GameplayManager : MonoBehaviour
 
     private List<EnemySpawner> m_spawners;
 
+    private GameOver m_gameOverScreen;
     private GameOverType m_gameOver;
 
     private Rect m_boundaries;
@@ -43,6 +46,11 @@ public class GameplayManager : MonoBehaviour
     {
         get { return m_boundaries; }
     }
+
+    private Text m_Time;
+    private Text m_Creeps;
+    private Text m_NPCs;
+    
 
     void Awake ()
     {
@@ -54,6 +62,8 @@ public class GameplayManager : MonoBehaviour
         m_spawners = new List<EnemySpawner>(FindObjectsOfType<EnemySpawner>());
 
         m_gameOver = GameOverType.None;
+        m_gameOverScreen = FindObjectOfType<GameOver>();
+        m_gameOverScreen.gameObject.SetActive(false);
 
         m_killedCreatureCount = m_killedNPCCount = 0;
         m_spawnedCreatures = m_spawnedNPCCount = 0;
@@ -68,6 +78,19 @@ public class GameplayManager : MonoBehaviour
         m_boundaries.width = camHWidth * 2;
         m_boundaries.y = 2 * camHHeight;
         m_boundaries.height = camHHeight * 4; // At the moment there are two areas on top of each other
+
+    }
+
+    void Start ()
+    {
+
+        Canvas c = GetComponentInChildren<Canvas>();
+        if (c != null)
+        {
+            m_Time = c.transform.FindChild("Time").GetComponent<Text>();
+            m_Creeps = c.transform.FindChild("Creeps").GetComponent<Text>();
+            m_NPCs = c.transform.FindChild("NPCs").GetComponent<Text>();
+        }
     }
 
     void Update()
@@ -84,6 +107,10 @@ public class GameplayManager : MonoBehaviour
                 if ((float)totalKilled / (float)totalSpawned > 0.3f)
                 {
                     SetGameOverCondition(GameOverType.Genocidal);
+                }
+                else if (m_killedNPCCount == m_spawnedNPCCount)
+                {
+                    SetGameOverCondition(GameOverType.Psychopath);
                 }
                 else
                 {
@@ -104,6 +131,10 @@ public class GameplayManager : MonoBehaviour
             {
                 SetGameOverCondition(GameOverType.Extermination);
             }
+
+            m_Time.text = string.Format("Time: {0:0.##}s", (m_victoryTime - m_elapsed));
+            m_Creeps.text = string.Format("Creeps: {0}", m_killedCreatureCount);            
+            m_NPCs.text = string.Format("NPCs: {0}", m_killedNPCCount);
         }
     }
 
@@ -122,6 +153,38 @@ public class GameplayManager : MonoBehaviour
         {
             m_allEntities[i].OnGameOver(m_gameOver);
         }
+
+        StartCoroutine(GameOverSequence());
+    }
+
+    IEnumerator GameOverSequence()
+    {
+        switch (m_gameOver)
+        {
+            case GameOverType.Extermination:
+            case GameOverType.PlayerDeath:
+                {
+                    yield return new WaitForSeconds(0.5f);
+                }
+                break;
+            case GameOverType.Resistance:
+            case GameOverType.Genocidal:
+            case GameOverType.Psychopath:
+                {
+                    for (int i = 0; i < m_activeEnemies.Count; ++i)
+                    {
+                        m_activeEnemies[i].StartFlyAway(3.0f);
+                    }
+                    yield return new WaitForSeconds(3.0f);
+                }
+                break;
+            default: break;
+        }
+
+        m_gameOverScreen.gameObject.SetActive(true);
+        m_gameOverScreen.SetGameOverType(m_gameOver);
+        Destroy(gameObject);
+        yield return null;
     }
 
     public void OnPlayerAction()
@@ -139,6 +202,12 @@ public class GameplayManager : MonoBehaviour
     {
         m_player = p;
         m_allEntities.Add(p);
+
+        CameraFollower cf = Camera.main.GetComponent<CameraFollower>();
+        if (cf != null)
+        {
+            cf.m_target = m_player.transform;
+        }
     }
 
     public void RemovePlayer(PlayerControl p)

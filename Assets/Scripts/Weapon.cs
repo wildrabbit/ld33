@@ -19,6 +19,8 @@ public class Weapon : MonoBehaviour
     public float m_shootVisibleTime = 0.3f;
     private float m_shootVisible;
 
+    public bool m_friendlyFire = false;
+
     private float m_effectiveRange;
     public float Range
     {

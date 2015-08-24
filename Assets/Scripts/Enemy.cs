@@ -47,6 +47,10 @@ public class Enemy : Entity
         get { return m_currentReaction == EnemyReaction.Hostile; }
     }
 
+    private bool m_flyingAway;
+    private float m_flyingAwayStart;
+    private float m_flyingAwayTime;
+
     private EnemyPersonality m_personality; // Immutable!
     
     private EnemyReaction m_currentReaction; // Dependent on environment
@@ -54,6 +58,8 @@ public class Enemy : Entity
     private EnemyState m_state;
 
     private static System.Type[] s_excludedTargetTypes = new System.Type[] { typeof(Enemy) };
+    public Color m_escapeColour;
+    public Sprite m_escapeSprite;
     
     override protected void Awake ()
     {
@@ -83,6 +89,9 @@ public class Enemy : Entity
         base.Initialize(maxHP, maxSpeed);
         GameplayManager.Instance.AddEnemy(this);
         ChangeReaction(EnemyReaction.Neutral);
+
+        m_flyingAway = false;
+        m_flyingAwayStart= 0.0f;
         
         m_state = EnemyState.Wandering;
         ResetWanderTarget();
@@ -99,6 +108,26 @@ public class Enemy : Entity
 	// Update is called once per frame
     override protected void Update()
     {
+        if (m_flyingAway)
+        {
+            if (Time.time - m_flyingAwayStart >= m_flyingAwayTime)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                transform.Translate(m_velocityTarget * Time.deltaTime);
+
+                float angle = Mathf.Atan2(m_velocityTarget.y, m_velocityTarget.x) * Mathf.Rad2Deg;
+                angle += Random.Range(-10.0f, 10.0f);
+
+                angle *= Mathf.Deg2Rad;
+                m_velocityTarget.Set(Mathf.Cos(angle), Mathf.Sin(angle));
+                m_velocityTarget *= m_maxSpeed;
+            }
+            return;
+        }
+
         base.Update();
         
         if (m_state == EnemyState.Dying)
@@ -260,7 +289,7 @@ public class Enemy : Entity
         
     }
 
-    protected override bool HitReaction()
+    protected override bool HitReaction(Entity attacker)
     {
         m_state = EnemyState.Hit;
 
@@ -268,6 +297,11 @@ public class Enemy : Entity
         c.a = 0.5f;
         m_renderer.color = c;
         return true;
+    }
+
+    override public void HitLanded() 
+    {
+        ChangeReaction(EnemyReaction.Neutral);
     }
 
     public void OnSawEnemyHit(Enemy e)
@@ -343,5 +377,23 @@ public class Enemy : Entity
     public override bool IsDying()
     {
         return m_state == EnemyState.Dying;
+    }
+
+
+
+    public void StartFlyAway(float time)
+    {
+        m_flyingAway = true;
+        m_flyingAwayStart = Time.time;
+        m_flyingAwayTime = time;
+        m_body.isKinematic = true;
+        m_mainCollider.enabled = false;
+        m_bodyCollider.enabled = false;
+
+        m_renderer.color = m_escapeColour;
+        m_renderer.sprite = m_escapeSprite;
+
+        float angle = Random.Range(0.0f, 2 * Mathf.PI);
+        m_velocityTarget = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * m_maxSpeed * 1.5f;
     }
 }

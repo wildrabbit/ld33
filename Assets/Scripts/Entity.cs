@@ -176,8 +176,10 @@ public abstract class Entity : MonoBehaviour
 
     abstract public bool IsDying();
     abstract protected void SetDying();
-    abstract protected bool HitReaction();
+    abstract protected bool HitReaction(Entity attacker);
     abstract protected void OnDied();
+
+    virtual public void HitLanded() { }
 
     public bool CanSee(Entity e)
     {
@@ -222,11 +224,12 @@ public abstract class Entity : MonoBehaviour
         Debug.LogFormat("Entity {0} hit! Current Hp: {1}", name, m_lifeData.HP);
         if (dead)
         {
+            e.HitLanded();
             StartCoroutine(DieInSeconds(1.0f));
         }
         else
         {
-            HitReaction();
+            HitReaction(e);
             m_hitTime = Time.time;
         }
     }
@@ -269,13 +272,14 @@ public abstract class Entity : MonoBehaviour
         transform.Translate(direction * e.WeaponRecoil * 1.6f);
         if (died)
         {
+            e.HitLanded();
             m_audioSource.PlayOneShot(m_deathSound);
             StartCoroutine(DieInSeconds(1.0f));
         }
         else
         {
             m_audioSource.PlayOneShot(m_hitSound);
-            if (HitReaction())
+            if (HitReaction(e))
             {
                 m_hitTime = Time.time;
 

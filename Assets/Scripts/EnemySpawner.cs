@@ -4,7 +4,7 @@ using System.Collections;
 
 public class EnemySpawner : MonoBehaviour 
 {
-    public int m_maxSpawns = 50;
+    public int m_maxSpawns = 35;
     private int m_spawnCount;
 
     public bool Depleted
@@ -30,7 +30,8 @@ public class EnemySpawner : MonoBehaviour
 	void Start () 
     {
         m_spawnCount = 0;
-        m_lastSpawn = m_nextSpawn = Time.time;
+        m_lastSpawn = Time.time;
+        m_nextSpawn = Time.time;
         InitializePool();
 	}
 	

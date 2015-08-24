@@ -136,7 +136,7 @@ public class PlayerControl : Entity
         return m_state == PlayerState.Hit || m_state == PlayerState.Death;
     }
 
-    override protected bool HitReaction()
+    override protected bool HitReaction(Entity attacker)
     {
         if (m_state == PlayerState.Hit)
         {
@@ -146,6 +146,7 @@ public class PlayerControl : Entity
         else
         {
             m_state = PlayerState.Hit;
+            attacker.HitLanded();
             m_oldState = m_state;
 
             Color c = m_renderer.color;

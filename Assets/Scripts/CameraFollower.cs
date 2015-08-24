@@ -15,6 +15,8 @@ public class CameraFollower : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
     {
+        if (m_target == null) return;
+
         Camera.main.transform.position = new Vector3(m_target.position.x, m_target.position.y, Camera.main.transform.position.z);
         Vector3 camPos = Camera.main.transform.position;
         float hheight = Camera.main.orthographicSize;

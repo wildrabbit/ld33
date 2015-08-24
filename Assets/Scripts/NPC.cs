@@ -172,10 +172,11 @@ public class NPC : Entity
         m_state = NPCState.Wandering;
     }
 
-    protected override bool HitReaction()
+    protected override bool HitReaction(Entity attacker)
     {
         m_state = NPCState.Hit;
-        
+
+        attacker.HitLanded();
         Color c = m_renderer.color;
         c.a = 0.5f;
         m_renderer.color = c;
