@@ -358,6 +358,7 @@ MonoBehaviour:
   m_deathSound: {fileID: 8300000, guid: 017a60eadd75a044fb05bac4c279c464, type: 3}
   m_hitSound: {fileID: 8300000, guid: febd513de75e3394bb45a9d3fcef5c1a, type: 3}
   m_shootSound: {fileID: 8300000, guid: e23d20ad21cb8ee4cae6f3df1db2a7c5, type: 3}
+  m_debugLabelPrefab: {fileID: 11432358, guid: a51ceb1789f62924b90171c6cc1b4a04, type: 2}
 --- !u!114 &11481180
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -377,6 +378,7 @@ MonoBehaviour:
   m_defaultWidth: .00999999978
   m_shootWidth: .0500000007
   m_shootVisibleTime: .300000012
+  m_friendlyFire: 0
   m_laserOffset: {x: .680000007, y: .0599999987}
   m_shootVisibility:
     serializedVersion: 2
@@ -522,6 +524,11 @@ Prefab:
       propertyPath: m_visibilityMask.m_Bits
       value: 7936
       objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_debugLabelPrefab
+      value: 
+      objectReference: {fileID: 11432358, guid: a51ceb1789f62924b90171c6cc1b4a04,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 190810}

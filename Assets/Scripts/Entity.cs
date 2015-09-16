@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using UnityEngine.UI;
+
 public abstract class Entity : MonoBehaviour
 {
     public float m_minWanderDecisionTime = 0.8f;
@@ -93,6 +95,10 @@ public abstract class Entity : MonoBehaviour
     protected Vector2 m_wanderPosition;
     protected Entity m_targetEntity;
 
+    // DEBUG STUFF
+    public DebugText m_debugLabelPrefab;
+    protected DebugText m_debugLabelInstance;
+
     #region UnityImplements
 
     virtual protected void Awake ()
@@ -108,6 +114,13 @@ public abstract class Entity : MonoBehaviour
         m_lifeData = new CharacterLife();
         m_hitTime = 0.0f;
         m_lastShoot = -1.0f;
+
+        Canvas debugCanvas = GameObject.Find("DebugCanvas").GetComponent<Canvas>();
+        if (m_debugLabelPrefab != null && debugCanvas != null)
+        {
+            m_debugLabelInstance = Instantiate<DebugText>(m_debugLabelPrefab);
+            m_debugLabelInstance.Initialize(this, debugCanvas.transform);
+        }
 	}
 
     // Use this for initialization
@@ -157,6 +170,7 @@ public abstract class Entity : MonoBehaviour
 
     virtual public void OnCollisionEnter2D(Collision2D collision)
     {
+        //m_body.isKinematic = true;
         bool bodyCollision = collision.collider.gameObject.layer == m_bodyCollider.gameObject.layer;
         
         if (bodyCollision)
@@ -170,6 +184,7 @@ public abstract class Entity : MonoBehaviour
     }
     virtual public void OnCollisionExit2D(Collision2D collision)
     {
+        //m_body.isKinematic = false;
     }
     #endregion
 
@@ -331,5 +346,64 @@ public abstract class Entity : MonoBehaviour
     public bool OwnsCollider (Collider2D collider)
     {
         return collider == m_bodyCollider || collider == m_mainCollider;
+    }
+
+    public virtual string GetDebugLabel ()
+    {
+        return name;
+    }
+
+    public void DebugRender()
+    {
+        // Set your materials
+
+        if (m_bodyCollider != null)
+        {
+            PostRenderCollider(m_bodyCollider, Color.cyan, new Color(0.8f, 1.0f, 1.0f,0.25f));
+        }               
+
+        if (m_mainCollider != null)
+        {
+            PostRenderCollider(m_mainCollider, Color.green, new Color(0.8f, 1.0f, 0.8f, 0.25f));
+        }
+        
+        
+    }
+
+    void PostRenderCollider(Collider2D collider, Color lineColour, Color quadColour)
+    {
+        if (!collider.enabled) { return; }
+
+        Vector3 TL = collider.bounds.center;
+        TL.x -= collider.bounds.extents.x;
+        TL.y += collider.bounds.extents.y;
+        Vector3 TR = collider.bounds.max;
+        Vector3 BL = collider.bounds.min;
+        Vector3 BR = collider.bounds.center;
+        BR.x += collider.bounds.extents.x;
+        BR.y -= collider.bounds.extents.y;
+
+        GL.Begin(GL.QUADS);
+        GL.Color(quadColour);
+        GL.Vertex3(TL.x, TL.y, -2.0f);
+        GL.Vertex3(TR.x, TR.y, -2.0f);       
+        GL.Vertex3(BR.x, BR.y, -2.0f);
+        GL.Vertex3(BL.x, BL.y, -2.0f);
+        GL.End();
+
+        GL.Begin(GL.LINES);
+        GL.Color(lineColour);
+        GL.Vertex3(TL.x, TL.y, -2.0f);
+        GL.Vertex3(TR.x, TR.y, -2.0f);
+        
+        GL.Vertex3(TR.x, TR.y, -2.0f);
+        GL.Vertex3(BR.x, BR.y, -2.0f);
+        
+        GL.Vertex3(BR.x, BR.y, -2.0f);
+        GL.Vertex3(BL.x, BL.y, -2.0f);
+        
+        GL.Vertex3(BL.x, BL.y, -2.0f);
+        GL.Vertex3(TL.x, TL.y, -2.0f);
+        GL.End();
     }
 }

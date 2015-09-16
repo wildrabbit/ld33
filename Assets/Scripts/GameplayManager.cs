@@ -28,13 +28,14 @@ public class GameplayManager : MonoBehaviour
     private float m_elapsed;
 
     public static GameplayManager Instance;
-
+    
     private PlayerControl m_player;
     public PlayerControl Player { get { return m_player; } }
     private List<Enemy> m_activeEnemies;
     private List<NPC> m_activeNPCs;
 
     private List<Entity> m_allEntities;
+    public List<Entity> AllEntities { get { return m_allEntities; } }
 
     private List<EnemySpawner> m_spawners;
 
@@ -47,9 +48,9 @@ public class GameplayManager : MonoBehaviour
         get { return m_boundaries; }
     }
 
-    private Text m_Time;
-    private Text m_Creeps;
-    private Text m_NPCs;
+    private Text m_time;
+    private Text m_creeps;
+    private Text m_npcs;
     
 
     void Awake ()
@@ -63,7 +64,10 @@ public class GameplayManager : MonoBehaviour
 
         m_gameOver = GameOverType.None;
         m_gameOverScreen = FindObjectOfType<GameOver>();
-        m_gameOverScreen.gameObject.SetActive(false);
+        if (m_gameOverScreen != null)
+        {
+            m_gameOverScreen.gameObject.SetActive(false);
+        }
 
         m_killedCreatureCount = m_killedNPCCount = 0;
         m_spawnedCreatures = m_spawnedNPCCount = 0;
@@ -87,9 +91,9 @@ public class GameplayManager : MonoBehaviour
         Canvas c = GetComponentInChildren<Canvas>();
         if (c != null)
         {
-            m_Time = c.transform.FindChild("Time").GetComponent<Text>();
-            m_Creeps = c.transform.FindChild("Creeps").GetComponent<Text>();
-            m_NPCs = c.transform.FindChild("NPCs").GetComponent<Text>();
+            m_time = c.transform.FindChild("Time").GetComponent<Text>();
+            m_creeps = c.transform.FindChild("Creeps").GetComponent<Text>();
+            m_npcs = c.transform.FindChild("NPCs").GetComponent<Text>();
         }
     }
 
@@ -127,14 +131,14 @@ public class GameplayManager : MonoBehaviour
                 }
             }
 
-            if (numDepleted == m_spawners.Count)
+            if (numDepleted == m_spawners.Count && m_spawnedCreatures == m_killedCreatureCount)
             {
                 SetGameOverCondition(GameOverType.Extermination);
             }
 
-            m_Time.text = string.Format("Time: {0:0.##}s", (m_victoryTime - m_elapsed));
-            m_Creeps.text = string.Format("Creeps: {0}", m_killedCreatureCount);            
-            m_NPCs.text = string.Format("NPCs: {0}", m_killedNPCCount);
+            m_time.text = string.Format("Time: {0:0.##}s", (m_victoryTime - m_elapsed));
+            m_creeps.text = string.Format("Creeps: {0}", m_killedCreatureCount);            
+            m_npcs.text = string.Format("NPCs: {0}", m_killedNPCCount);
         }
     }
 
@@ -181,8 +185,11 @@ public class GameplayManager : MonoBehaviour
             default: break;
         }
 
-        m_gameOverScreen.gameObject.SetActive(true);
-        m_gameOverScreen.SetGameOverType(m_gameOver);
+        if (m_gameOverScreen != null)
+        {
+            m_gameOverScreen.gameObject.SetActive(true);
+            m_gameOverScreen.SetGameOverType(m_gameOver);
+        }
         Destroy(gameObject);
         yield return null;
     }

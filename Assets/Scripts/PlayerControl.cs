@@ -171,4 +171,10 @@ public class PlayerControl : Entity
         GameplayManager.Instance.RemovePlayer(this);
         GameplayManager.Instance.OnPlayerDied();
     }
+
+    public override string GetDebugLabel()
+    {
+        return string.Format("{0}_{1}", name, m_state);
+    }
+
 }

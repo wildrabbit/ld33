@@ -259,6 +259,7 @@ MonoBehaviour:
   m_deathSound: {fileID: 8300000, guid: 017a60eadd75a044fb05bac4c279c464, type: 3}
   m_hitSound: {fileID: 8300000, guid: febd513de75e3394bb45a9d3fcef5c1a, type: 3}
   m_shootSound: {fileID: 0}
+  m_debugLabelPrefab: {fileID: 11432358, guid: a51ceb1789f62924b90171c6cc1b4a04, type: 2}
   m_talkDistance: 1
   m_message: We're doomed!!
 --- !u!114 &11478476
@@ -334,6 +335,11 @@ Prefab:
       value: 
       objectReference: {fileID: 21300006, guid: f2eb4ddff3d33954991a02d23d98d069,
         type: 3}
+    - target: {fileID: 0}
+      propertyPath: m_debugLabelPrefab
+      value: 
+      objectReference: {fileID: 11432358, guid: a51ceb1789f62924b90171c6cc1b4a04,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 146058}

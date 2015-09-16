@@ -35,6 +35,22 @@ public class Enemy : Entity
     private float m_reactionDuration;
     public float m_hostileOnSightDuration = 4.0f;
     public float m_hostileOnHitDuration = 8.0f;
+    public float m_attackDistance = 1.6f;
+
+    public float m_chaseSpeedMultiplier = 1.1f;
+
+    public float m_attackPreparation = 0.25f;
+    public float m_attackPreparationMultiplier = 0.5f;
+    public float m_attackMaxDuration = 0.25f;
+    public float m_attackSpeedIncrease = 2.5f;
+    public float m_attackRecoverDuration = 0.5f;
+    
+    const int ATTACK_PREPARE = 0;
+    const int ATTACK_EXEC = 1;
+    const int ATTACK_RECOVER = 2;
+    private float m_attackStepTime;
+    private float m_attackStepDuration;
+    private int m_attackStep;
 
     public Sprite m_neutralSprite;
     public Sprite m_hostileSprite;
@@ -175,9 +191,20 @@ public class Enemy : Entity
                 }
             case EnemyState.Chasing:
             {
+                float stateSpeed = m_maxSpeed * m_chaseSpeedMultiplier;
                 if (m_targetEntity != null && CanSee(m_targetEntity))
                 {
                     m_velocityTarget = (Vector2)(m_targetEntity.transform.position - transform.position);
+                    float distanceToTarget = Vector2.Distance(transform.position, m_targetEntity.transform.position);
+                    Debug.LogFormat("Distance: {0}", distanceToTarget);
+                    if (distanceToTarget <= m_attackDistance)
+                    {
+                        m_state = EnemyState.Attacking;
+                        m_attackStep = ATTACK_PREPARE;
+                        m_velocityTarget = -m_velocityTarget;
+                        m_attackStepDuration = m_attackPreparation;
+                        m_attackStepTime = Time.time;
+                    }
                 }
                 else
                 {
@@ -197,7 +224,12 @@ public class Enemy : Entity
                     }
                 }
                 m_velocityTarget.Normalize();
-                m_velocityTarget *= m_maxSpeed * 1.1f;
+                m_velocityTarget *= stateSpeed;
+                break;
+            }
+            case EnemyState.Attacking:
+            {
+                UpdateAttack();
                 break;
             }
             case EnemyState.Hit:
@@ -209,6 +241,70 @@ public class Enemy : Entity
         }
 	
 	}
+
+    private void UpdateAttack()
+    {
+        float attackSpeed = m_maxSpeed;
+        Vector2 targetVector = (m_targetEntity.transform.position - transform.position);
+        if (Time.time - m_attackStepTime >= m_attackStepDuration)
+        {
+            switch(m_attackStep)
+            {
+                case ATTACK_PREPARE:
+                    {
+                        m_attackStep = ATTACK_EXEC;
+                        m_attackStepTime = Time.time;
+                        m_attackStepDuration = m_attackRecoverDuration;
+
+                        m_velocityTarget = targetVector;
+                        attackSpeed *= m_attackSpeedIncrease;
+                        break;
+                    }
+                case ATTACK_EXEC:
+                    {
+                        m_attackStep = ATTACK_RECOVER;
+                        m_attackStepTime = Time.time;
+                        m_attackStepDuration = m_attackRecoverDuration;
+
+                        m_velocityTarget = Vector3.zero;
+                        attackSpeed = 0.0f;
+                        break;
+                    }
+                case ATTACK_RECOVER:
+                    {
+                        m_state = EnemyState.Chasing;
+
+                        m_velocityTarget = targetVector;
+                        attackSpeed *= m_chaseSpeedMultiplier;
+                        break;
+                    }
+                default: break;
+            }
+        }
+        else
+        {
+            switch (m_attackStep)
+            {
+                case ATTACK_PREPARE:
+                case ATTACK_RECOVER:
+                    {
+                        m_velocityTarget = -targetVector;
+                        attackSpeed *= m_attackPreparationMultiplier;
+                        break;
+                    }
+                case ATTACK_EXEC:
+                    {
+                        m_velocityTarget = targetVector;
+                        attackSpeed *= m_attackSpeedIncrease;
+                        break;
+                    }
+                default:break;
+            }
+        }
+        m_velocityTarget.Normalize();
+        m_velocityTarget *= attackSpeed;
+    }
+
     private void UpdateReaction()
     {
         if (m_reactionTime >= 0 && Time.time - m_reactionTime > m_reactionDuration)
@@ -244,6 +340,19 @@ public class Enemy : Entity
         if (m_state == EnemyState.Wandering)
         {
             ResetWanderTarget();
+        }
+        else if (m_state == EnemyState.Attacking)
+        {
+            m_attackStep = ATTACK_RECOVER;
+            m_attackStepTime = Time.time;
+            m_attackStepDuration = m_attackRecoverDuration;
+        }
+        else if (m_state == EnemyState.Chasing)
+        {
+            m_attackStep = ATTACK_RECOVER;
+            m_attackStepTime = Time.time;
+            m_attackStepDuration = m_attackRecoverDuration;
+            m_state = EnemyState.Attacking;
         }
     }
 
@@ -301,7 +410,10 @@ public class Enemy : Entity
 
     override public void HitLanded() 
     {
-        ChangeReaction(EnemyReaction.Neutral);
+        if (m_state == EnemyState.Attacking)
+        {
+            ChangeReaction(EnemyReaction.Neutral);
+        }
     }
 
     public void OnSawEnemyHit(Enemy e)
@@ -396,4 +508,10 @@ public class Enemy : Entity
         float angle = Random.Range(0.0f, 2 * Mathf.PI);
         m_velocityTarget = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * m_maxSpeed * 1.5f;
     }
+
+    public override string GetDebugLabel()
+    {
+        return string.Format("{0}_{1}", name, m_state);
+    }
+
 }

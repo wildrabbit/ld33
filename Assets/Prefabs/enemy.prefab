@@ -209,8 +209,16 @@ MonoBehaviour:
   m_deathSound: {fileID: 8300000, guid: 017a60eadd75a044fb05bac4c279c464, type: 3}
   m_hitSound: {fileID: 8300000, guid: febd513de75e3394bb45a9d3fcef5c1a, type: 3}
   m_shootSound: {fileID: 0}
+  m_debugLabelPrefab: {fileID: 11432358, guid: a51ceb1789f62924b90171c6cc1b4a04, type: 2}
   m_hostileOnSightDuration: 4
   m_hostileOnHitDuration: 8
+  m_attackDistance: 1.5
+  m_chaseSpeedMultiplier: 1.10000002
+  m_attackPreparation: .25
+  m_attackPreparationMultiplier: .5
+  m_attackMaxDuration: .25
+  m_attackSpeedIncrease: 3
+  m_attackRecoverDuration: .5
   m_neutralSprite: {fileID: 21300002, guid: f2eb4ddff3d33954991a02d23d98d069, type: 3}
   m_hostileSprite: {fileID: 21300000, guid: f2eb4ddff3d33954991a02d23d98d069, type: 3}
   m_neutralColour: {r: 1, g: .498039246, b: .498039246, a: 1}
@@ -362,6 +370,23 @@ Prefab:
       value: 
       objectReference: {fileID: 21300000, guid: ce0a40f78d5d8fd4cac97737fc158a98,
         type: 3}
+    - target: {fileID: 0}
+      propertyPath: m_debugLabelPrefab
+      value: 
+      objectReference: {fileID: 11432358, guid: a51ceb1789f62924b90171c6cc1b4a04,
+        type: 2}
+    - target: {fileID: 0}
+      propertyPath: m_attackRecoverDuration
+      value: .5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_attackDistance
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_attackSpeedIncrease
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 197760}

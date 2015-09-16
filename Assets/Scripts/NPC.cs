@@ -192,4 +192,9 @@ public class NPC : Entity
     {
         return m_state == NPCState.Dying || m_state == NPCState.Dead;
     }
+
+    public override string GetDebugLabel()
+    {
+        return string.Format("{0}_{1}", name, m_state);
+    }
 }
